@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#302b63"/>
+    <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="assets/logo.jpg">
+    <title>ZAININ AI - Your Futuristic AI Agent</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Authentication Container -->
+    <div id="auth-container" class="visible">
+        <div class="auth-box">
+            <h1>Welcome to ZAININ AI</h1>
+            <p>Sign in to begin your journey</p>
+            <div id="auth-forms">
+                <input type="email" id="email-input" placeholder="Email">
+                <input type="password" id="password-input" placeholder="Password">
+                <button id="email-signin-btn">Sign In</button>
+                <button id="email-signup-btn">Sign Up</button>
+            </div>
+            <div class="divider">or</div>
+            <button id="google-signin-btn"><i class="fab fa-google"></i> Sign in with Google</button>
+            <p id="auth-error" class="error-message"></p>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="main-app" class="hidden">
+        <!-- Sidebar -->
+        <aside id="sidebar">
+            <div class="sidebar-header">
+                <h2>ZAININ AI</h2>
+                <button id="sidebar-close-btn"><i class="fas fa-times"></i></button>
+            </div>
+            <button id="new-chat-btn"><i class="fas fa-plus"></i> New Chat</button>
+            <div class="chat-history">
+                <ul id="chat-history-list">
+                    <!-- Chat history populated by JS -->
+                </ul>
+            </div>
+            <div class="sidebar-footer">
+                <div class="settings">
+                    <div class="setting-item">
+                        <label for="web-search-toggle"><i class="fas fa-globe"></i> Web Search:</label>
+                        <label class="switch">
+                            <input type="checkbox" id="web-search-toggle">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="user-profile">
+                    <span id="user-email"></span>
+                    <button id="logout-btn" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Chat Area -->
+        <main id="chat-container">
+            <header id="chat-header">
+                <button id="sidebar-toggle-btn"><i class="fas fa-bars"></i></button>
+                <h1 id="chat-title">New Chat</h1>
+            </header>
+            <div id="chat-messages" tabindex="0">
+                <!-- Messages populated by JS -->
+            </div>
+            <footer id="chat-input-area">
+                <div class="input-wrapper">
+                    <textarea id="message-input" placeholder="Message ZAININ AI..." rows="1"></textarea>
+                    <button id="send-btn" title="Send Message"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </footer>
+        </main>
+    </div>
+
+    <!-- External and App Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="script.js"></script>
+
+    <!-- PWA Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('Service Worker registered successfully:', registration);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

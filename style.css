@@ -1,0 +1,901 @@
+/*
+ * ZAININ AI - Professional Stylesheet
+ * Version: 5.0 - The 'Clarity' Edition
+ * Author: ZAININ AI & AI Assistant
+ * Description: A meticulously organized, heavily commented, and fully responsive
+ *              stylesheet designed for clarity, maintainability, and a premium
+ *              futuristic aesthetic.
+ */
+
+
+/* ==========================================================================
+   1. ROOT & THEME VARIABLES
+   ========================================================================== */
+
+/**
+ * The :root pseudo-class holds all global CSS variables (custom properties)
+ * for the entire application. This is the central control panel for the theme.
+ * Changing a value here will update it everywhere it's used.
+ */
+:root {
+  /* -------------------- FONTS & TYPOGRAPHY -------------------- */
+  --font-primary: 'Poppins', sans-serif;
+  --font-code: 'Fira Code', 'Courier New', Courier, monospace;
+  --font-size-base: 16px;
+  --line-height-base: 1.6;
+
+  /* -------------------- CORE COLORS & GRADIENTS -------------------- */
+  --color-bg-gradient: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+  --color-accent-primary: #8E2DE2;
+  --color-accent-secondary: #4A00E0;
+  --color-accent-gradient: linear-gradient(to right, var(--color-accent-primary), var(--color-accent-secondary));
+  --color-text-primary: #f0f0f0;
+  --color-text-secondary: #a0a0c0;
+  --color-text-on-accent: #ffffff;
+  --color-error: #ff6b6b;
+  --color-success: #45e0a8;
+
+  /* -------------------- UI COMPONENT BACKGROUNDS -------------------- */
+  --bg-sidebar: rgba(20, 20, 40, 0.75);
+  --bg-chat-area: rgba(30, 30, 50, 0.65);
+  --bg-input-field: rgba(40, 40, 60, 0.85);
+  --bg-chat-item-hover: rgba(50, 45, 90, 0.5);
+  --bg-user-message: var(--color-accent-secondary);
+  --bg-ai-message: #4e54c8;
+  --bg-code-block: #0c0a1f;
+
+  /* -------------------- BORDERS & SHADOWS -------------------- */
+  --border-radius-small: 5px;
+  --border-radius-medium: 8px;
+  --border-radius-large: 12px;
+  --border-radius-xlarge: 20px;
+  --border-color-default: rgba(142, 45, 226, 0.3);
+  --border-color-focus: var(--color-accent-primary);
+  --shadow-color-ambient: rgba(0, 0, 0, 0.2);
+  --shadow-default: 0 8px 32px 0 var(--shadow-color-ambient);
+  --shadow-interactive-hover: 0 4px 15px 0 rgba(0, 0, 0, 0.25);
+
+  /* -------------------- LAYOUT & SPACING -------------------- */
+  --spacing-xs: 4px;
+  --spacing-s: 8px;
+  --spacing-m: 16px;
+  --spacing-l: 20px;
+  --spacing-xl: 40px;
+  --sidebar-width: 260px;
+  --transition-speed-fast: 0.2s;
+  --transition-speed-normal: 0.3s;
+  --backdrop-blur-effect: blur(10px);
+}
+
+
+/* ==========================================================================
+   2. GLOBAL RESETS & BASE STYLES
+   ========================================================================== */
+
+/**
+ * These styles provide a consistent baseline across all browsers.
+ * We reset margins, padding, and set box-sizing to border-box.
+ */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/**
+ * Sets smooth scrolling behavior for the entire document.
+ */
+html {
+  scroll-behavior: smooth;
+}
+
+/**
+ * Body styles define the foundational look and feel of the application.
+ * This includes the animated gradient background and base font settings.
+ */
+body {
+  font-family: var(--font-primary);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  color: var(--color-text-primary);
+  background: var(--color-bg-gradient);
+  background-size: 400% 400%;
+  animation: gradient-animation 15s ease infinite;
+  overflow: hidden; /* Prevents scrollbars on the body itself */
+  height: 100vh;
+  width: 100vw;
+  -webkit-font-smoothing: antialiased; /* Improves font rendering */
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/**
+ * Keyframes for the animated background gradient.
+ */
+@keyframes gradient-animation {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/**
+ * Utility classes for controlling visibility.
+ */
+.hidden {
+  display: none !important;
+}
+
+.visible {
+  display: flex;
+}
+
+/* ==========================================================================
+   3. CUSTOM SCROLLBAR
+   ========================================================================== */
+
+/**
+ * A custom, dark-themed scrollbar to match the application's aesthetic.
+ * This applies to all scrollable elements.
+ */
+::-webkit-scrollbar {
+  width: var(--spacing-s);
+  height: var(--spacing-s);
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: var(--border-radius-medium);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-accent-primary);
+  border-radius: var(--border-radius-medium);
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-accent-secondary);
+}
+
+
+/* ==========================================================================
+   4. LAYOUT CONTAINERS
+   ========================================================================== */
+
+/**
+ * These are the top-level containers that switch between the
+ * authentication view and the main application view.
+ */
+#auth-container {
+  height: 100vh;
+  width: 100vw;
+  justify-content: center;
+  align-items: center;
+  padding: var(--spacing-l);
+}
+
+#main-app {
+  display: flex;
+  height: 100vh;
+}
+
+/* ==========================================================================
+   5. AUTHENTICATION MODULE
+   ========================================================================== */
+
+/**
+ * The main container for the login/signup form. It features a glassmorphism
+ * effect with a blurred backdrop and a subtle border.
+ */
+.auth-box {
+  background: var(--bg-sidebar);
+  padding: var(--spacing-xl);
+  border-radius: var(--border-radius-xlarge);
+  border: 1px solid var(--border-color-default);
+  backdrop-filter: var(--backdrop-blur-effect);
+  -webkit-backdrop-filter: var(--backdrop-blur-effect); /* For Safari */
+  text-align: center;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: var(--shadow-default);
+  animation: auth-box-fade-in 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+@keyframes auth-box-fade-in {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/**
+ * Typography within the authentication box.
+ */
+.auth-box h1 {
+  margin-bottom: var(--spacing-s);
+  font-weight: 600;
+}
+
+.auth-box p {
+  margin-bottom: calc(var(--spacing-l) + var(--spacing-s));
+  color: var(--color-text-secondary);
+}
+
+/**
+ * Input fields for email and password.
+ */
+#auth-forms input {
+  width: 100%;
+  padding: var(--spacing-m);
+  margin-bottom: var(--spacing-m);
+  border-radius: var(--border-radius-medium);
+  border: 1px solid var(--border-color-default);
+  background: var(--bg-input-field);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-base);
+  transition: border-color var(--transition-speed-fast) ease;
+}
+
+#auth-forms input:focus {
+  outline: none;
+  border-color: var(--border-color-focus);
+}
+
+/**
+ * General button styles for the authentication box.
+ */
+.auth-box button {
+  width: 100%;
+  padding: var(--spacing-m);
+  border: none;
+  border-radius: var(--border-radius-medium);
+  background: var(--color-accent-gradient);
+  color: var(--color-text-on-accent);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform var(--transition-speed-fast), box-shadow var(--transition-speed-fast);
+}
+
+.auth-box button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-interactive-hover);
+}
+
+.auth-box button:active {
+  transform: translateY(0);
+}
+
+/**
+ * Specific button overrides.
+ */
+#email-signup-btn {
+  background: none;
+  border: 1px solid var(--color-accent-primary);
+  margin-top: var(--spacing-s);
+}
+
+#google-signin-btn {
+  background: white;
+  color: #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-s);
+}
+
+/**
+ * The 'or' divider and error message styling.
+ */
+.divider {
+  margin: var(--spacing-l) 0;
+  color: var(--color-text-secondary);
+}
+
+.error-message {
+  color: var(--color-error);
+  margin-top: var(--spacing-m);
+  height: var(--spacing-l);
+  font-weight: 500;
+}
+
+
+/* ==========================================================================
+   6. SIDEBAR MODULE
+   ========================================================================== */
+
+/**
+ * The main sidebar container. It's fixed on the left and has a glassmorphism
+ * effect similar to the auth box.
+ */
+#sidebar {
+  width: var(--sidebar-width);
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border-color-default);
+  backdrop-filter: var(--backdrop-blur-effect);
+  -webkit-backdrop-filter: var(--backdrop-blur-effect);
+  display: flex;
+  flex-direction: column;
+  transition: transform var(--transition-speed-normal) ease-in-out;
+  flex-shrink: 0;
+}
+
+/**
+ * Header section of the sidebar.
+ */
+.sidebar-header {
+  padding: var(--spacing-l);
+  border-bottom: 1px solid var(--border-color-default);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.sidebar-header h2 {
+  font-weight: 600;
+}
+
+#sidebar-close-btn {
+  display: none; /* Only visible on mobile */
+  background: none;
+  border: none;
+  color: var(--color-text-primary);
+  font-size: 24px;
+  cursor: pointer;
+}
+
+/**
+ * The "New Chat" button.
+ */
+#new-chat-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-s);
+  width: calc(100% - 2 * var(--spacing-l));
+  margin: var(--spacing-l);
+  padding: var(--spacing-m);
+  background: var(--color-accent-gradient);
+  border: none;
+  border-radius: var(--border-radius-medium);
+  color: var(--color-text-on-accent);
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  cursor: pointer;
+  text-align: center;
+  transition: transform var(--transition-speed-fast), box-shadow var(--transition-speed-fast);
+  flex-shrink: 0;
+}
+
+#new-chat-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-interactive-hover);
+}
+
+/**
+ * The scrollable list of past chats.
+ */
+.chat-history {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 0 var(--spacing-s);
+}
+
+#chat-history-list {
+  list-style-type: none;
+}
+
+.chat-history-item {
+  padding: var(--spacing-m);
+  margin: var(--spacing-xs) 0;
+  border-radius: var(--border-radius-medium);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color var(--transition-speed-fast);
+}
+
+.chat-history-item:hover,
+.chat-history-item.active {
+  background-color: var(--bg-chat-item-hover);
+}
+
+.chat-title-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-grow: 1;
+  padding-right: var(--spacing-s);
+}
+
+.chat-item-actions {
+  display: flex;
+  gap: var(--spacing-s);
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity var(--transition-speed-fast);
+}
+
+.chat-history-item:hover .chat-item-actions,
+.chat-history-item.active .chat-item-actions {
+  visibility: visible;
+  opacity: 1;
+}
+
+.chat-item-actions button {
+  background: none;
+  border: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.chat-item-actions button:hover {
+  color: var(--color-text-primary);
+}
+
+/**
+ * Footer section of the sidebar containing settings and user profile.
+ */
+.sidebar-footer {
+  padding: var(--spacing-l);
+  border-top: 1px solid var(--border-color-default);
+  flex-shrink: 0;
+}
+
+.settings {
+  margin-bottom: var(--spacing-m);
+}
+
+.setting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-m);
+}
+
+.setting-item label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-s);
+  color: var(--color-text-secondary);
+}
+
+.user-profile {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: var(--spacing-m);
+  border-top: 1px solid var(--border-color-default);
+}
+
+#user-email {
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--color-text-secondary);
+  padding-right: var(--spacing-s);
+}
+
+#logout-btn {
+  background: none;
+  border: none;
+  color: var(--color-text-secondary);
+  font-size: 20px;
+  cursor: pointer;
+  transition: color var(--transition-speed-fast);
+}
+
+#logout-btn:hover {
+  color: var(--color-error);
+}
+
+/* Toggle Switch Component */
+.switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--bg-input-field); transition: .4s; border-radius: 20px; }
+.slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+input:checked + .slider { background-color: var(--color-accent-primary); }
+input:checked + .slider:before { transform: translateX(20px); }
+
+
+/* ==========================================================================
+   7. MAIN CHAT MODULE
+   ========================================================================== */
+
+/**
+ * The main container for the chat interface. It grows to fill the
+ * available space and uses flexbox for its internal layout.
+ */
+#chat-container {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: relative; /* For potential future overlays */
+}
+
+/**
+ * The chat header, which is only visible on mobile to hold the
+ * sidebar toggle button.
+ */
+#chat-header {
+  display: none; /* Hidden on desktop */
+  padding: var(--spacing-s) var(--spacing-m);
+  background: var(--bg-sidebar);
+  backdrop-filter: var(--backdrop-blur-effect);
+  border-bottom: 1px solid var(--border-color-default);
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+#sidebar-toggle-btn {
+  background: none;
+  border: none;
+  color: var(--color-text-primary);
+  font-size: 24px;
+  cursor: pointer;
+  margin-right: var(--spacing-m);
+}
+
+#chat-title {
+  font-size: 18px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/**
+ * The scrollable area where chat messages are displayed.
+ */
+#chat-messages {
+  flex-grow: 1;
+  padding: var(--spacing-l);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing-l) + var(--spacing-xs)); /* Gap between messages */
+}
+
+/**
+ * General styling for a single message bubble (both user and AI).
+ */
+.message {
+  display: flex;
+  max-width: 85%;
+  animation: message-fade-in 0.5s ease-out both;
+}
+
+@keyframes message-fade-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.message-content-wrapper {
+  position: relative;
+}
+
+.message-content {
+  padding: var(--spacing-m);
+  border-radius: var(--border-radius-xlarge);
+  line-height: var(--line-height-base);
+  word-wrap: break-word; /* Prevents long words from overflowing */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Specific styles for user and AI messages */
+.user-message {
+  align-self: flex-end;
+}
+.user-message .message-content {
+  background: var(--bg-user-message);
+  color: var(--color-text-on-accent);
+  border-bottom-right-radius: var(--border-radius-small);
+}
+.ai-message {
+  align-self: flex-start;
+}
+.ai-message .message-content {
+  background: transparent;
+  border-bottom-left-radius: var(--border-radius-small);
+  width: 100%;
+}
+
+/**
+ * Action buttons (copy, rerun, edit) that appear on hover.
+ */
+.message-actions {
+  display: flex;
+  gap: var(--spacing-m);
+  position: absolute;
+  bottom: calc(-1 * var(--spacing-l) - var(--spacing-xs));
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--transition-speed-fast), visibility var(--transition-speed-fast);
+  z-index: 5;
+}
+
+.message:hover .message-actions {
+  opacity: 1;
+  visibility: visible;
+}
+
+.ai-message .message-actions { left: 0; }
+.user-message .message-actions { right: 0; }
+
+.message-actions button {
+  background: none;
+  border: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font-size: 14px;
+  padding: var(--spacing-xs);
+  transition: color var(--transition-speed-fast);
+}
+
+.message-actions button:hover {
+  color: var(--color-text-primary);
+}
+
+/**
+ * Styling for code blocks within AI messages.
+ */
+.message-content pre {
+  font-family: var(--font-code);
+  background-color: var(--bg-code-block);
+  padding: var(--spacing-m);
+  border-radius: var(--border-radius-medium);
+  overflow-x: auto;
+  position: relative;
+  margin: var(--spacing-m) 0;
+  border: 1px solid var(--border-color-default);
+  width: 95vw;
+}
+
+.message-content code {
+  font-family: inherit; /* Inherit from <pre> */
+  color: var(--color-text-primary);
+  background: none;
+}
+
+.copy-code-btn {
+  position: absolute;
+  top: var(--spacing-s);
+  right: var(--spacing-s);
+  background: var(--bg-input-field);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--border-color-default);
+  border-radius: var(--border-radius-small);
+  padding: var(--spacing-xs) var(--spacing-s);
+  cursor: pointer;
+  font-size: 12px;
+  opacity: 0.7;
+  transition: opacity var(--transition-speed-fast);
+}
+
+.copy-code-btn:hover {
+  opacity: 1;
+  background: var(--color-accent-primary);
+  color: var(--color-text-on-accent);
+}
+
+/**
+ * The footer area containing the message input field.
+ */
+#chat-input-area {
+  padding: var(--spacing-m) var(--spacing-l);
+  border-top: 1px solid var(--border-color-default);
+  background: var(--bg-chat-area);
+  flex-shrink: 0;
+}
+
+.input-wrapper {
+  display: flex;
+  align-items: center;
+  background: var(--bg-input-field);
+  border-radius: var(--border-radius-large);
+  padding: var(--spacing-s) var(--spacing-s) var(--spacing-s) var(--spacing-l);
+  border: 1px solid transparent; /* Start with transparent border */
+  transition: border-color var(--transition-speed-normal);
+}
+
+.input-wrapper:focus-within {
+  border-color: var(--border-color-focus);
+}
+
+#message-input {
+  flex-grow: 1;
+  border: none;
+  background: none;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-base);
+  padding: var(--spacing-s) 0;
+  resize: none;
+  max-height: 120px; /* Limit vertical growth */
+  overflow-y: auto; /* Add scroll if it grows too large */
+}
+
+#message-input:focus {
+  outline: none;
+}
+
+#send-btn {
+  background: none;
+  border: none;
+  color: var(--color-accent-primary);
+  font-size: 22px;
+  cursor: pointer;
+  padding: var(--spacing-m);
+  transition: color var(--transition-speed-fast);
+  border-radius: 50%;
+}
+
+#send-btn:hover {
+  color: var(--color-text-on-accent);
+  background-color: var(--color-accent-secondary);
+}
+
+/**
+ * The GIF typing indicator and streaming cursor.
+ */
+.typing-indicator {
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-s) var(--spacing-m);
+  background: var(--bg-ai-message);
+  border-radius: var(--border-radius-xlarge);
+  border-bottom-left-radius: var(--border-radius-small);
+}
+
+.typing-indicator img {
+  width: 40px;
+  height: auto;
+}
+
+.message-cursor {
+  display: inline-block;
+  background-color: var(--color-text-primary);
+  width: 2px;
+  height: 1em;
+  animation: cursor-blink 1s step-end infinite;
+  vertical-align: text-bottom;
+}
+
+@keyframes cursor-blink {
+  from, to { background-color: transparent }
+  50% { background-color: var(--color-text-primary); }
+}
+
+
+/* ==========================================================================
+   8. RESPONSIVE DESIGN & MEDIA QUERIES
+   ========================================================================== */
+
+/**
+ * Media queries for adapting the layout on smaller screens, like tablets
+ * and mobile phones.
+ */
+@media (max-width: 768px) {
+  /* Make the sidebar a slide-out overlay on mobile */
+  #sidebar {
+    position: fixed;
+    height: 100%;
+    z-index: 1000;
+    transform: translateX(-100%);
+    box-shadow: 5px 0 15px var(--shadow-color-ambient);
+  }
+
+  #sidebar.open {
+    transform: translateX(0);
+  }
+
+  #sidebar-close-btn {
+    display: block; /* Show the close button */
+  }
+
+  /* Show the chat header on mobile */
+  #chat-header {
+    display: flex;
+  }
+
+  /* Create a dimming overlay when the sidebar is open */
+  #main-app.dimmed::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    animation: fade-in 0.3s ease;
+  }
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* Adjust padding and message width for smaller screens */
+  #chat-messages {
+    padding: var(--spacing-m) var(--spacing-s);
+  }
+
+  #chat-input-area {
+    padding: var(--spacing-s);
+  }
+
+  .message {
+    max-width: 95%;
+  }
+
+  .message-content pre {
+  width: 90vw;
+  }
+}
+
+/* ==========================================================================
+   9. OFFLINE PAGE STYLES
+   ========================================================================== */
+
+body.offline-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  padding: var(--spacing-l);
+  text-align: center;
+}
+
+.offline-container {
+  max-width: 500px;
+}
+
+.offline-container .fa-wifi-slash {
+  font-size: 80px;
+  color: var(--color-accent-primary);
+  margin-bottom: var(--spacing-l);
+  animation: pulse 2s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.offline-container h1 {
+  font-size: 2.5em;
+  font-weight: 600;
+  margin-bottom: var(--spacing-s);
+}
+
+.offline-container p {
+  color: var(--color-text-secondary);
+  font-size: 1.1em;
+  margin-bottom: var(--spacing-xl);
+}
+
+.offline-container button {
+  padding: var(--spacing-m) var(--spacing-xl);
+  background: var(--color-accent-gradient);
+  border: none;
+  border-radius: var(--border-radius-medium);
+  color: var(--color-text-on-accent);
+  font-size: 1em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform var(--transition-speed-fast), box-shadow var(--transition-speed-fast);
+}
+
+.offline-container button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-interactive-hover);
+}
