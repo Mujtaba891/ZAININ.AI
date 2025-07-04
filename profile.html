@@ -6,62 +6,70 @@
     <meta name="theme-color" content="#302b63"/>
     <link rel="icon" href="assets/logo.jpg">
     <title>ZAININ AI - Profile</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Global Theme Script - MUST be synchronous -->
-    <script src="theme.js"></script>
+    <!-- Global Theme Script -->
+    <script src="js/theme.js"></script>
 </head>
-<body class="profile-page">
+<body class="profile-page"> <!-- Add body class for specific styling -->
 
-    <div class="static-page-container">
+    <div class="profile-box">
         <h1>Your Profile</h1>
 
-        <div class="profile-section profile-info-section">
-            <div class="profile-picture-placeholder" id="profile-pic-placeholder">
-                <span id="profile-initial"></span>
+        <div class="profile-info">
+            <div class="profile-avatar" id="profile-avatar">
+                 <!-- Default icon or user photo -->
+                 <i class="fas fa-user"></i>
+                 <!-- <img src="" alt="User Avatar" id="user-photo-img" style="display: none;"> -->
             </div>
-            <div class="profile-details">
-                <div class="profile-detail-item">
-                    <label for="display-name-input"><i class="fas fa-signature"></i> Display Name:</label>
-                    <div class="detail-value">
-                        <input type="text" id="display-name-input" placeholder="Set your name">
-                         <button id="save-name-btn" class="icon-button" title="Save Name"><i class="fas fa-save"></i></button>
-                    </div>
-                     <p id="name-message" class="message-text"></p>
-                </div>
-                <div class="profile-detail-item">
-                    <label><i class="fas fa-envelope"></i> Email:</label>
-                    <span id="profile-email" class="detail-value">Loading...</span>
-                </div>
-                 <div class="profile-detail-item">
-                     <label><i class="fas fa-clock"></i> Member Since:</label>
-                     <span id="member-since" class="detail-value">Loading...</span>
-                 </div>
-                 <div class="profile-detail-item">
-                     <label><i class="fas fa-history"></i> Last Login:</label>
-                     <span id="last-login" class="detail-value">Loading...</span>
-                 </div>
+            <div class="profile-details-text">
+                <h2 id="user-name">Loading...</h2>
+                <p id="user-email-profile"></p>
+                 <p id="user-uid" style="font-size:0.8em; color: var(--border-color);"></p> <!-- Optional: show UID -->
             </div>
         </div>
-<!---
-         <div class="profile-section profile-features">
-             <h2>Account Features</h2>
-             <ul>
-                 <li>Manage Subscription (Coming Soon)</li>
-                 <li>View Usage Statistics (Coming Soon)</li>
-                 <li>Linked Accounts (Coming Soon)</li>
-                  <li>Change Password/Email (Coming Soon - requires Firebase re-authentication)</li>
-             </ul>
-         </div>-->
 
-        <div class="divider"></div>
+        <div class="settings-section">
+             <h2>Account Settings</h2>
+             <!-- Add more settings here if needed -->
+              <div class="setting-item">
+                <a href="/api.html" class="settings-link"><i class="fas fa-key"></i> Manage API Keys</a>
+            </div>
+             <div class="setting-item">
+                <label><i class="fas fa-adjust"></i> Theme:</label>
+                <button id="theme-toggle-btn" class="icon-button" title="Toggle Theme">
+                     <i class="fas fa-sun"></i> <!-- Default icon, updated by theme.js -->
+                </button>
+            </div>
+        </div>
 
-        <a href="/index.html" class="settings-link back-link"><i class="fas fa-arrow-left"></i> Back to Chat</a>
+         <div class="other-actions">
+            <button id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+             <a href="/index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to Chat</a>
+         </div>
     </div>
 
-    <!-- Firebase and Profile Script (type="module" to use imports) -->
-     <script type="module" src="firebase-config.js"></script>
-     <script type="module" src="profile.js"></script>
+    <!-- Firebase SDKs -->
+    <script type="module" src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js"></script>
+
+    <!-- Your Scripts -->
+    <script type="module" src="js/firebase-config.js"></script>
+    <script type="module" src="js/profile.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('Service Worker registered successfully:', registration);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
 </body>
 </html>

@@ -1,0 +1,10 @@
+document.addEventListener('DOMContentLoaded',()=>{const cb=document.getElementById('chat-box'),ui=document.getElementById('user-input'),sb=document.getElementById('send-btn'),lb=document.getElementById('logout-btn');let u=null,k={};auth.onAuthStateChanged(async c=>{if(c){u=c;k=await getUserKeys(c.uid);console.log("Keys loaded for chat (UNSAFE)",k);/* No history load to save lines */displayMsg('bot','Hello! How can I help?');}else window.location.href='auth.html';});
+async function getUserKeys(id){try{const d=await db.collection('users').doc(id).collection('settings').doc('apikeys').get();return d.exists?d.data():{};}catch(e){console.error("Error getting keys:",e);return{};}}
+function displayMsg(s,t){const m=document.createElement('div');m.classList.add('message',`${s}-message`);m.innerHTML=`<p>${t}</p>`;cb.appendChild(m);cb.scrollTop=cb.scrollHeight;}
+async function saveMsg(id,msg){try{await db.collection('users').doc(id).collection('chats').doc('main').update({messages:firebase.firestore.FieldValue.arrayUnion(msg)});}catch(e){if(e.code==='not-found'){try{await db.collection('users').doc(id).collection('chats').doc('main').set({messages:[msg]});}catch(ce){console.error("Create chat error:",ce);}}else{console.error("Save msg error:",e);}}}
+sb.addEventListener('click',async()=>{const t=ui.value.trim();if(!t)return;displayMsg('user',t);saveMsg(u.uid,{sender:'user',text:t});ui.value='';ui.disabled=true;sb.disabled=true;
+const botResp=getBotResponse(t,k);displayMsg('bot',botResp);saveMsg(u.uid,{sender:'bot',text:botResp});
+ui.disabled=false;sb.disabled=false;ui.focus();});
+ui.addEventListener('keypress',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sb.click();}});
+lb.addEventListener('click',async e=>{e.preventDefault();try{await auth.signOut();}catch(e){console.error("Logout error:",e);alert('Logout failed.');}});
+initSidebarToggle();});

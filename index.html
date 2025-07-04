@@ -5,33 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#302b63"/>
     <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png">
-    <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="/manifest.json"> <!-- Link to the manifest file -->
     <link rel="icon" href="assets/logo.jpg">
     <title>ZAININ AI - Your Futuristic AI Agent</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
      <!-- Global Theme Script - MUST be synchronous to prevent FOUC (Flash of Unstyled Content) -->
-     <script src="theme.js"></script>
+     <script src="js/theme.js"></script>
 </head>
 <body>
-
-    <!-- Authentication Container -->
-    <div id="auth-container" class="visible">
-        <div class="auth-box">
-            <h1>Welcome to ZAININ AI</h1>
-            <p>Sign in to begin your journey</p>
-            <div id="auth-forms">
-                <input type="email" id="email-input" placeholder="Email">
-                <input type="password" id="password-input" placeholder="Password">
-                <button id="email-signin-btn">Sign In</button>
-                <button id="email-signup-btn">Sign Up</button>
-            </div>
-            <div class="divider">or</div>
-            <button id="google-signin-btn"><i class="fab fa-google"></i> Sign in with Google</button>
-            <p id="auth-error" class="error-message"></p>
-        </div>
-    </div>
 
     <!-- Main Application -->
     <div id="main-app" class="hidden">
@@ -68,7 +51,7 @@
                     </div>
                 </div>
                  <div class="other-links">
-                     <!--<a href="/profile.html" class="settings-link"><i class="fas fa-user"></i> Profile</a>-->
+                     <a href="/profile.html" class="settings-link"><i class="fas fa-user"></i> Profile</a>
                      <a href="/privacyPolicy.html" class="settings-link">Privacy Policy</a>
                      <a href="/termsConditions.html" class="settings-link">Terms & Conditions</a>
                  </div>
@@ -101,11 +84,11 @@
     <!-- External and App Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <!-- Firebase Config must be type="module" -->
-    <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="js/firebase-config.js"></script>
     <!-- Main App Script must be type="module" -->
-    <script type="module" src="script.js"></script>
+    <script type="module" src="js/script.js"></script>
 
-    <!-- PWA Service Worker Registration -->
+    <!-- PWA Service Worker Registration - Include this script ONCE per page you want controlled -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {

@@ -6,10 +6,410 @@
     <meta name="theme-color" content="#302b63"/>
     <link rel="icon" href="assets/logo.jpg">
     <title>ZAININ AI - Terms & Conditions</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Global Theme Script -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Embedded Styles for this page -->
+    <style>
+        /*
+         * ZAININ AI - Embedded Styles for Static Pages (Privacy Policy, Terms)
+         * Version: 6.1 - Embedded Edition
+         * Description: Contains necessary styles from the main stylesheet for standalone pages.
+         */
+
+        /* ==========================================================================
+           1. ROOT & THEME VARIABLES (DARK & LIGHT)
+           ========================================================================== */
+
+        :root {
+          /* -------------------- FONTS & TYPOGRAPHY -------------------- */
+          --font-primary: 'Poppins', sans-serif;
+          --font-code: 'Fira Code', 'Courier New', Courier, monospace;
+          --font-size-base: 14px;
+          --line-height-base: 1.5;
+
+          /* -------------------- CORE COLORS (DARK THEME) -------------------- */
+          --color-bg-gradient-dark: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+          --color-accent-primary-dark: #8E2DE2;
+          --color-accent-secondary-dark: #4A00E0;
+          --color-accent-gradient-dark: linear-gradient(to right, var(--color-accent-primary-dark), var(--color-accent-secondary-dark));
+          --color-text-primary-dark: #f0f0f0;
+          --color-text-secondary-dark: #a0a0c0;
+          --color-text-on-accent-dark: #ffffff;
+          --bg-sidebar-dark: rgba(20, 20, 40, 0.75); /* Used for container background */
+          --bg-chat-area-dark: rgba(30, 30, 50, 0.65); /* Not strictly used here but for consistency */
+          --bg-input-field-dark: rgba(40, 40, 60, 0.85); /* Not strictly used here but for consistency */
+          --bg-chat-item-hover-dark: rgba(50, 45, 90, 0.5); /* Not strictly used here but for consistency */
+          --bg-user-message-dark: var(--color-accent-secondary-dark); /* Not strictly used here but for consistency */
+          --bg-ai-message-dark: #4e54c8; /* Not strictly used here but for consistency */
+          --bg-code-block-dark: #0c0a1f; /* Not strictly used here but for consistency */
+          --border-color-default-dark: rgba(142, 45, 226, 0.3);
+          --border-color-focus-dark: var(--color-accent-primary-dark); /* Not strictly used here but for consistency */
+          --shadow-color-ambient-dark: rgba(0, 0, 0, 0.2);
+          --shadow-default-dark: 0 8px 32px 0 var(--shadow-color-ambient-dark);
+          --shadow-interactive-hover-dark: 0 4px 15px 0 rgba(0, 0, 0, 0.25); /* Not strictly used here but for consistency */
+          --backdrop-blur-effect-dark: blur(10px);
+          --overlay-bg-dark: rgba(0, 0, 0, 0.75); /* Not strictly used here but for consistency */
+          --modal-bg-dark: var(--bg-sidebar-dark); /* Not strictly used here but for consistency */
+          --profile-pic-bg-dark: var(--bg-input-field-dark); /* Not strictly used here but for consistency */
+
+
+          /* -------------------- CORE COLORS (LIGHT THEME) -------------------- */
+          --color-bg-gradient-light: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+          --color-accent-primary-light: #6200ea;
+          --color-accent-secondary-light: #3f51b5;
+          --color-accent-gradient-light: linear-gradient(to right, var(--color-accent-primary-light), var(--color-accent-secondary-light));
+          --color-text-primary-light: #333;
+          --color-text-secondary-light: #555;
+          --color-text-on-accent-light: #ffffff;
+          --bg-sidebar-light: rgba(255, 255, 255, 0.8); /* Used for container background */
+          --bg-chat-area-light: rgba(240, 240, 250, 0.7); /* Not strictly used here but for consistency */
+          --bg-input-field-light: rgba(255, 255, 255, 0.9); /* Not strictly used here but for consistency */
+          --bg-chat-item-hover-light: rgba(200, 220, 240, 0.5); /* Not strictly used here but for consistency */
+          --bg-user-message-light: var(--color-accent-primary-light); /* Not strictly used here but for consistency */
+          --bg-ai-message-light: rgba(180, 200, 230, 0.7); /* Not strictly used here but for consistency */
+          --bg-code-block-light: #eef; /* Not strictly used here but for consistency */
+          --border-color-default-light: rgba(0, 0, 0, 0.1);
+          --border-color-focus-light: var(--color-accent-primary-light); /* Not strictly used here but for consistency */
+          --shadow-color-ambient-light: rgba(0, 0, 0, 0.1);
+          --shadow-default-light: 0 4px 15px 0 var(--shadow-color-ambient-light);
+          --shadow-interactive-hover-light: 0 2px 10px 0 rgba(0, 0, 0, 0.15); /* Not strictly used here but for consistency */
+          --backdrop-blur-effect-light: blur(5px);
+          --overlay-bg-light: rgba(0, 0, 0, 0.5); /* Not strictly used here but for consistency */
+          --modal-bg-light: var(--bg-sidebar-light); /* Not strictly used here but for consistency */
+          --profile-pic-bg-light: #eee; /* Not strictly used here but for consistency */
+
+
+          /* -------------------- GENERIC/SHARED VARIABLES -------------------- */
+          --color-error: #ff6b6b;
+          --color-success: #45e0a8;
+
+          --border-radius-small: 4px;
+          --border-radius-medium: 6px;
+          --border-radius-large: 10px;
+          --border-radius-xlarge: 16px;
+
+          --spacing-xs: 3px;
+          --spacing-s: 6px;
+          --spacing-m: 12px;
+          --spacing-l: 16px;
+          --spacing-xl: 30px;
+
+          --sidebar-width: 240px; /* Not strictly used here but for consistency */
+
+          --transition-speed-fast: 0.15s;
+          --transition-speed-normal: 0.25s;
+
+
+          /* --- Default (Dark Theme) Mappings --- */
+          --color-bg-gradient: var(--color-bg-gradient-dark);
+          --color-accent-primary: var(--color-accent-primary-dark);
+          --color-accent-secondary: var(--color-accent-secondary-dark);
+          --color-accent-gradient: var(--color-accent-gradient-dark);
+          --color-text-primary: var(--color-text-primary-dark);
+          --color-text-secondary: var(--color-text-secondary-dark);
+          --color-text-on-accent: var(--color-text-on-accent-dark);
+          --bg-sidebar: var(--bg-sidebar-dark);
+          --bg-chat-area: var(--bg-chat-area-dark); /* Not strictly used here but for consistency */
+          --bg-input-field: var(--bg-input-field-dark); /* Not strictly used here but for consistency */
+          --bg-chat-item-hover: var(--bg-chat-item-hover-dark); /* Not strictly used here but for consistency */
+          --bg-user-message: var(--bg-user-message-dark); /* Not strictly used here but for consistency */
+          --bg-ai-message: var(--bg-ai-message-dark); /* Not strictly used here but for consistency */
+          --bg-code-block: var(--bg-code-block-dark); /* Not strictly used here but for consistency */
+          --border-color-default: var(--border-color-default-dark);
+          --border-color-focus: var(--border-color-focus-dark); /* Not strictly used here but for consistency */
+          --shadow-color-ambient: var(--shadow-color-ambient-dark);
+          --shadow-default: var(--shadow-default-dark);
+          --shadow-interactive-hover: var(--shadow-interactive-hover-dark); /* Not strictly used here but for consistency */
+          --backdrop-blur-effect: var(--backdrop-blur-effect-dark);
+          --overlay-bg: var(--overlay-bg-dark); /* Not strictly used here but for consistency */
+          --modal-bg: var(--modal-bg-dark); /* Not strictly used here but for consistency */
+          --profile-pic-bg: var(--profile-pic-bg-dark); /* Not strictly used here but for consistency */
+        }
+
+
+        /* ==========================================================================
+           1.1 LIGHT THEME OVERRIDES
+           ========================================================================== */
+
+        body.light-theme {
+          --color-bg-gradient: var(--color-bg-gradient-light);
+          --color-accent-primary: var(--color-accent-primary-light);
+          --color-accent-secondary: var(--color-accent-secondary-light);
+          --color-accent-gradient: var(--color-accent-gradient-light);
+          --color-text-primary: var(--color-text-primary-light);
+          --color-text-secondary: var(--color-text-secondary-light);
+          --color-text-on-accent: var(--color-text-on-accent-light);
+          --bg-sidebar: var(--bg-sidebar-light);
+          --bg-chat-area: var(--bg-chat-area-light); /* Not strictly used here but for consistency */
+          --bg-input-field: var(--bg-input-field-light); /* Not strictly used here but for consistency */
+          --bg-chat-item-hover: var(--bg-chat-item-hover-light); /* Not strictly used here but for consistency */
+          --bg-user-message: var(--bg-user-message-light); /* Not strictly used here but for consistency */
+          --bg-ai-message: var(--bg-ai-message-light); /* Not strictly used here but for consistency */
+          --bg-code-block: var(--bg-code-block-light); /* Not strictly used here but for consistency */
+          --border-color-default: var(--border-color-default-light);
+          --border-color-focus: var(--color-accent-primary-light); /* Not strictly used here but for consistency */
+          --shadow-color-ambient: var(--shadow-color-ambient-light);
+          --shadow-default: var(--shadow-default-light);
+          --shadow-interactive-hover: var(--shadow-interactive-hover-light); /* Not strictly used here but for consistency */
+          --backdrop-blur-effect: var(--backdrop-blur-effect-light);
+          --overlay-bg: var(--overlay-bg-light); /* Not strictly used here but for consistency */
+          --modal-bg: var(--modal-bg-light); /* Not strictly used here but for consistency */
+          --profile-pic-bg: var(--profile-pic-bg-light); /* Not strictly used here but for consistency */
+
+            /* Specific light theme shadows */
+             .static-page-container {
+                 box-shadow: var(--shadow-default-light);
+             }
+        }
+
+
+        /* ==========================================================================
+           2. GLOBAL RESETS & BASE STYLES
+           ========================================================================== */
+
+        *, *::before, *::after {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+
+        html {
+          scroll-behavior: smooth;
+        }
+
+        body {
+          font-family: var(--font-primary);
+          font-size: var(--font-size-base);
+          line-height: var(--line-height-base);
+          color: var(--color-text-primary);
+          overflow-y: auto; /* Allow body scroll on static pages */
+          height: auto; /* Allow body to be taller than viewport if needed */
+          min-height: 100vh; /* Ensure minimum height for background */
+          width: 100vw;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+          transition: color var(--transition-speed-normal) ease;
+          display: flex; /* Needed for centering .static-page-container */
+          justify-content: center;
+          align-items: flex-start; /* Align items to top, allowing container to center block-wise */
+        }
+
+        body::before {
+          content: '';
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: var(--color-bg-gradient);
+          background-size: 400% 400%;
+          animation: gradient-animation 15s ease infinite;
+          z-index: -1;
+          transition: background var(--transition-speed-normal) ease;
+        }
+
+        body {
+            background: none;
+        }
+
+        @keyframes gradient-animation {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+
+        /* Utility classes (included for robustness, though likely not needed on static pages) */
+        .hidden { display: none !important; }
+        .visible { display: flex; }
+
+        /* Basic icon button style (for back link icon) */
+        .icon-button {
+            background: none;
+            border: none;
+            color: var(--color-text-secondary);
+            font-size: 0.9em;
+            cursor: pointer;
+            padding: var(--spacing-xs);
+            transition: color var(--transition-speed-fast);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .icon-button:hover { color: var(--color-text-primary); }
+
+
+        /* ==========================================================================
+           3. CUSTOM SCROLLBAR
+           ========================================================================== */
+
+        ::-webkit-scrollbar { width: var(--spacing-s); height: var(--spacing-s); }
+        ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.1); border-radius: var(--border-radius-medium); }
+        ::-webkit-scrollbar-thumb {
+            background-color: var(--color-accent-primary);
+            border-radius: var(--border-radius-medium);
+            border: 2px solid transparent;
+            background-clip: content-box;
+            transition: background-color var(--transition-speed-normal);
+        }
+        ::-webkit-scrollbar-thumb:hover { background-color: var(--color-accent-secondary); }
+
+
+        /* ==========================================================================
+           4. LAYOUT CONTAINERS
+           ========================================================================== */
+
+        /* Class applied to body for static pages */
+        /* body.static-page handles centering */
+
+
+        /* ==========================================================================
+           5. STATIC PAGE CONTAINER STYLES
+           ========================================================================== */
+
+        .static-page-container {
+          background: var(--bg-sidebar);
+          padding: var(--spacing-xl);
+          border-radius: var(--border-radius-xlarge);
+          border: 1px solid var(--border-color-default);
+          backdrop-filter: var(--backdrop-blur-effect);
+          -webkit-backdrop-filter: var(--backdrop-blur-effect);
+          text-align: left; /* Align content left */
+          width: 100%;
+          max-width: 700px; /* Wider for content pages */
+          box-shadow: var(--shadow-default);
+          flex-shrink: 0;
+          display: flex; /* Use flex for internal layout */
+          flex-direction: column; /* Stack children vertically */
+          gap: var(--spacing-l); /* Space between major sections (h1, paragraphs, list, divider, link) */
+          transition: background var(--transition-speed-normal), border-color var(--transition-speed-normal), box-shadow var(--transition-speed-normal), backdrop-filter var(--transition-speed-normal);
+          margin: var(--spacing-l) auto; /* Center block and add vertical margin */
+        }
+
+        .static-page-container h1 {
+            text-align: center;
+            margin-bottom: 0; /* Gap handled by parent flexbox */
+            font-weight: 600;
+            font-size: 1.8em;
+             color: var(--color-text-primary);
+             transition: color var(--transition-speed-normal);
+        }
+
+        .static-page-container h2 {
+            margin-top: 0; /* Gap handled by parent flexbox */
+            margin-bottom: var(--spacing-s);
+            font-weight: 500;
+            font-size: 1.3em;
+             color: var(--color-text-primary);
+             transition: color var(--transition-speed-normal);
+        }
+
+        .static-page-container p,
+        .static-page-container ul {
+            color: var(--color-text-secondary);
+            margin-bottom: var(--spacing-m);
+            transition: color var(--transition-speed-normal);
+        }
+        .static-page-container *:last-child {
+             margin-bottom: 0; /* Remove bottom margin on last element within container */
+        }
+
+
+        .static-page-container ul {
+            padding-left: var(--spacing-l);
+        }
+
+        .static-page-container li {
+            margin-bottom: var(--spacing-xs);
+            color: var(--color-text-secondary);
+            transition: color var(--transition-speed-normal);
+        }
+
+        /* Shared divider style */
+        .divider {
+          margin: var(--spacing-l) 0;
+          color: var(--color-text-secondary);
+          text-align: center;
+          transition: color var(--transition-speed-normal);
+          border-top: 1px solid var(--border-color-default);
+          padding-top: var(--spacing-l);
+          line-height: 0;
+        }
+        .divider::before {
+            content: 'or';
+            display: inline-block;
+            background: var(--bg-sidebar);
+            padding: 0 var(--spacing-s);
+            position: relative;
+            top: -0.7em;
+            color: var(--color-text-secondary);
+            transition: background var(--transition-speed-normal), color var(--transition-speed-normal);
+        }
+
+
+        /* Back to chat link style */
+        .static-page-container .settings-link.back-link {
+            display: inline-flex;
+            margin-top: var(--spacing-m);
+            text-align: center;
+            justify-content: center;
+            width: 100%;
+            color: var(--color-text-secondary);
+            text-decoration: none;
+            font-size: var(--font-size-base);
+            transition: color var(--transition-speed-fast);
+        }
+        .static-page-container .settings-link.back-link:hover {
+            color: var(--color-text-primary);
+        }
+        .static-page-container .settings-link.back-link i {
+             flex-shrink: 0;
+             font-size: 1em;
+             margin-right: var(--spacing-s);
+        }
+
+        /* ==========================================================================
+           8. RESPONSIVE DESIGN & MEDIA QUERIES
+           ========================================================================== */
+
+        @media (max-width: 768px) {
+          /* body.static-page handled by main body rule on mobile */
+          .static-page-container {
+              padding: var(--spacing-l);
+              max-width: 95%;
+               gap: var(--spacing-m);
+               margin: var(--spacing-m) auto;
+          }
+          .static-page-container h1 {
+              font-size: 1.5em;
+          }
+           .static-page-container h2 {
+               font-size: 1.2em;
+           }
+           .static-page-container p, .static-page-container ul, .static-page-container li {
+                font-size: 0.9em;
+           }
+            .static-page-container ul {
+                 padding-left: var(--spacing-m);
+            }
+             .divider {
+                 margin: var(--spacing-m) 0;
+                 padding-top: var(--spacing-m);
+             }
+              .divider::before {
+                  top: -0.8em;
+              }
+
+            .static-page-container .settings-link.back-link {
+                 margin-top: var(--spacing-m);
+             }
+
+        }
+    </style>
+
+    <!-- Global Theme Script - MUST be synchronous -->
+    <!-- This script applies the light-theme class if needed -->
     <script src="theme.js"></script>
 </head>
 <body class="static-page">
@@ -56,8 +456,20 @@
         <p>If you have any questions about these Terms, please contact us at [Your Contact Email or Method].</p>
 
         <div class="divider"></div>
-        <a href="/index.html" class="settings-link back-link"><i class="fas fa-arrow-left"></i> Back to Chat</a>
+         <a href="/index.html" class="settings-link back-link"><i class="fas fa-arrow-left"></i> Back to Chat</a>
     </div>
-
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('Service Worker registered successfully:', registration);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
 </body>
 </html>

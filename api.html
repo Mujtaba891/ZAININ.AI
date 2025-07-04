@@ -6,33 +6,40 @@
     <meta name="theme-color" content="#302b63"/>
     <link rel="icon" href="assets/logo.jpg">
     <title>ZAININ AI - API Keys</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Global Theme Script -->
-    <script src="theme.js"></script>
+    <script src="js/theme.js"></script>
 </head>
-<body class="api-page">
+<body class="api-page"> <!-- Add body class for specific styling -->
 
     <div class="auth-box api-box">
         <h1>Manage API Keys <button id="tutorial-btn" class="icon-button" title="Watch Tutorial"><i class="fas fa-circle-play"></i></button></h1>
-        <p>Enter your personal API keys for ZAININ AI to function. These are stored locally in your browser.</p>
+        <p class="warning-message">
+            WARNING: Storing and using API keys directly in your browser is a SECURITY RISK!
+            For production, use a secure backend to handle API calls.
+        </p>
+        <p class="help-text">
+             Enter your personal API keys for ZAININ AI to function. Keys are stored in your personal Firebase account.
+        </p>
+
 
         <div class="form-group">
             <label for="openrouter-key">OpenRouter API Key:</label>
-            <input type="text" id="openrouter-key" placeholder="sk-or-...">
+            <input type="text" id="openrouter-key" placeholder="sk-or-..." autocomplete="off">
             <p class="help-text">Get your key from <a href="https://openrouter.ai/keys" target="_blank">openrouter.ai/keys</a></p>
         </div>
 
         <div class="form-group">
             <label for="serpapi-key">SerpApi API Key (for Web Search):</label>
-            <input type="text" id="serpapi-key" placeholder="...">
+            <input type="text" id="serpapi-key" placeholder="..." autocomplete="off">
             <p class="help-text">Get your key from <a href="https://serpapi.com/users/sign_up" target="_blank">serpapi.com/signup</a> (Optional for Web Search)</p>
         </div>
 
         <button id="save-api-keys-btn"><i class="fas fa-save"></i> Save Keys</button>
         <p id="api-key-message" class="message-text"></p>
-        <div class="divider">or</div>
+        <div class="divider"></div> <!-- Keep divider for visual separation -->
         <a href="/index.html" class="settings-link back-link"><i class="fas fa-arrow-left"></i> Back to Chat</a>
     </div>
 
@@ -43,12 +50,30 @@
             <h2>API Key Tutorial</h2>
             <div id="video-container" class="video-container">
                 <!-- Video player will be inserted here by api.js -->
-                 
             </div>
         </div>
     </div>
 
+    <!-- Firebase SDKs -->
+    <script type="module" src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js"></script>
 
-    <script src="api.js"></script>
+    <!-- Your Scripts -->
+    <script type="module" src="js/firebase-config.js"></script>
+    <script type="module" src="js/api.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('Service Worker registered successfully:', registration);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
 </body>
 </html>
