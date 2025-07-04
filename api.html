@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#302b63"/>
+    <link rel="icon" href="assets/logo.jpg">
+    <title>ZAININ AI - API Keys</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Global Theme Script -->
+    <script src="theme.js"></script>
+</head>
+<body class="api-page">
+
+    <div class="auth-box api-box">
+        <h1>Manage API Keys <button id="tutorial-btn" class="icon-button" title="Watch Tutorial"><i class="fas fa-circle-play"></i></button></h1>
+        <p>Enter your personal API keys for ZAININ AI to function. These are stored locally in your browser.</p>
+
+        <div class="form-group">
+            <label for="openrouter-key">OpenRouter API Key:</label>
+            <input type="text" id="openrouter-key" placeholder="sk-or-...">
+            <p class="help-text">Get your key from <a href="https://openrouter.ai/keys" target="_blank">openrouter.ai/keys</a></p>
+        </div>
+
+        <div class="form-group">
+            <label for="serpapi-key">SerpApi API Key (for Web Search):</label>
+            <input type="text" id="serpapi-key" placeholder="...">
+            <p class="help-text">Get your key from <a href="https://serpapi.com/users/sign_up" target="_blank">serpapi.com/signup</a> (Optional for Web Search)</p>
+        </div>
+
+        <button id="save-api-keys-btn"><i class="fas fa-save"></i> Save Keys</button>
+        <p id="api-key-message" class="message-text"></p>
+        <div class="divider">or</div>
+        <a href="/index.html" class="settings-link back-link"><i class="fas fa-arrow-left"></i> Back to Chat</a>
+    </div>
+
+    <!-- Tutorial Video Modal Structure -->
+    <div id="tutorial-overlay" class="modal-overlay hidden">
+        <div id="tutorial-modal" class="modal-content">
+            <button id="tutorial-close-btn" class="modal-close-btn"><i class="fas fa-times"></i></button>
+            <h2>API Key Tutorial</h2>
+            <div id="video-container" class="video-container">
+                <!-- Video player will be inserted here by api.js -->
+                 
+            </div>
+        </div>
+    </div>
+
+
+    <script src="api.js"></script>
+</body>
+</html>

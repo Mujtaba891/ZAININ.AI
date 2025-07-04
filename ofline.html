@@ -7,13 +7,17 @@
     <link rel="stylesheet" href="/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Global Theme Script - needed for offline page styling -->
+    <script src="theme.js"></script>
 </head>
 <body class="offline-page">
     <div class="offline-container">
         <i class="fas fa-wifi-slash"></i>
         <h1>You are Offline</h1>
-        <p>ZAININ AI requires an internet connection to function. Please check your connection and try again.</p>
+        <p>ZAININ AI requires an internet connection to function fully, especially for AI responses and web search.</p>
         <button onclick="window.location.reload()">Retry</button>
+        <div class="divider">or</div>
+         <p>If you see this while online, there might be a different issue. Try reloading.</p>
     </div>
 </body>
 </html>

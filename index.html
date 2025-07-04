@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+     <!-- Global Theme Script - MUST be synchronous to prevent FOUC (Flash of Unstyled Content) -->
+     <script src="theme.js"></script>
 </head>
 <body>
 
@@ -54,7 +56,22 @@
                             <span class="slider round"></span>
                         </label>
                     </div>
+                     <div class="setting-item">
+                        <a href="/api.html" class="settings-link"><i class="fas fa-key"></i> Manage API Keys</a>
+                    </div>
+                     <!-- Theme Toggle Button - JS in theme.js handles click -->
+                    <div class="setting-item">
+                        <label><i class="fas fa-adjust"></i> Theme:</label>
+                        <button id="theme-toggle-btn" class="icon-button" title="Toggle Theme">
+                             <i class="fas fa-sun"></i> <!-- Default icon, updated by theme.js -->
+                        </button>
+                    </div>
                 </div>
+                 <div class="other-links">
+                     <!--<a href="/profile.html" class="settings-link"><i class="fas fa-user"></i> Profile</a>-->
+                     <a href="/privacyPolicy.html" class="settings-link">Privacy Policy</a>
+                     <a href="/termsConditions.html" class="settings-link">Terms & Conditions</a>
+                 </div>
                 <div class="user-profile">
                     <span id="user-email"></span>
                     <button id="logout-btn" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
@@ -70,6 +87,7 @@
             </header>
             <div id="chat-messages" tabindex="0">
                 <!-- Messages populated by JS -->
+                <!-- Initial welcome message will be added by JS -->
             </div>
             <footer id="chat-input-area">
                 <div class="input-wrapper">
@@ -82,7 +100,9 @@
 
     <!-- External and App Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Firebase Config must be type="module" -->
     <script type="module" src="firebase-config.js"></script>
+    <!-- Main App Script must be type="module" -->
     <script type="module" src="script.js"></script>
 
     <!-- PWA Service Worker Registration -->
