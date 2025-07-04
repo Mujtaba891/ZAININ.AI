@@ -1091,8 +1091,6 @@ body.light-theme .message-content :not(pre)>code {
   overflow-y: auto;
   line-height: var(--line-height-base);
    transition: color var(--transition-speed-normal);
-   height: auto;
-   min-height: 16px;
 }
 
 #message-input:focus {
@@ -1103,9 +1101,8 @@ body.light-theme .message-content :not(pre)>code {
   background: none;
   border: none;
   color: var(--color-accent-primary); /* Use variable */
-  font-size: 22px;
+  font-size: 23px;
   cursor: pointer;
-  padding: var(--spacing-m);
   transition: color var(--transition-speed-fast);
   border-radius: 50%;
   flex-shrink: 0;
