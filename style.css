@@ -1057,6 +1057,8 @@ body.light-theme .message-content :not(pre)>code {
   background: var(--bg-chat-area); /* Use variable */
   flex-shrink: 0;
    transition: background var(--transition-speed-normal), border-color var(--transition-speed-normal); /* Add transitions */
+   height: auto;
+   min-height: 20px;
 }
 
 .input-wrapper {
@@ -1069,6 +1071,8 @@ body.light-theme .message-content :not(pre)>code {
   transition: border-color var(--transition-speed-normal), background var(--transition-speed-normal); /* Add transitions */
   max-width: 960px;
   margin: 0 auto;
+  height: auto;
+  min-height: 10px;
 }
 
 .input-wrapper:focus-within {
@@ -1086,7 +1090,9 @@ body.light-theme .message-content :not(pre)>code {
   max-height: 120px;
   overflow-y: auto;
   line-height: var(--line-height-base);
-   transition: color var(--transition-speed-normal); /* Add transition */
+   transition: color var(--transition-speed-normal);
+   height: auto;
+   min-height: 16px;
 }
 
 #message-input:focus {
