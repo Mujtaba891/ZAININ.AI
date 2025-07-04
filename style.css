@@ -1058,7 +1058,8 @@ body.light-theme .message-content :not(pre)>code {
   flex-shrink: 0;
    transition: background var(--transition-speed-normal), border-color var(--transition-speed-normal); /* Add transitions */
    height: auto;
-   min-height: 20px;
+   min-height: 60px;
+   margin-bottom: 40px;
 }
 
 .input-wrapper {
