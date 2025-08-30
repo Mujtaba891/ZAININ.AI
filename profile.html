@@ -19,24 +19,33 @@
 
         <div class="profile-info">
             <div class="profile-avatar" id="profile-avatar">
-                 <!-- Default icon or user photo -->
                  <i class="fas fa-user"></i>
-                 <!-- <img src="" alt="User Avatar" id="user-photo-img" style="display: none;"> -->
             </div>
             <div class="profile-details-text">
                 <h2 id="user-name">Loading...</h2>
                 <p id="user-email-profile"></p>
-                 <p id="user-uid" style="font-size:0.8em; color: var(--border-color);"></p> <!-- Optional: show UID -->
+                 <p id="user-uid" style="font-size:0.8em; color: var(--border-color);"></p>
             </div>
         </div>
 
         <div class="settings-section">
-             <h2>Account Settings</h2>
-             <!-- Add more settings here if needed -->
-              <div class="setting-item">
-                <a href="/api.html" class="settings-link"><i class="fas fa-key"></i> Manage API Keys</a>
-            </div>
+             <h2>Membership Status</h2>
              <div class="setting-item">
+                <label><i class="fas fa-crown"></i> Current Plan:</label>
+                <span id="membership-status">Loading...</span>
+            </div>
+            <div class="setting-item" id="upgrade-to-premium-link-container">
+                <a href="/pricing.html" class="settings-link"><i class="fas fa-arrow-up"></i> Upgrade to Premium</a>
+            </div>
+            <div class="setting-item hidden" id="manage-subscription-link-container">
+                <a href="#" class="settings-link" title="Not implemented for demo"><i class="fas fa-wallet"></i> Manage Subscription</a>
+            </div>
+        </div>
+
+        <div class="settings-section">
+             <h2>Display Settings</h2>
+             <!-- Theme Toggle Button - JS in theme.js handles click -->
+            <div class="setting-item">
                 <label><i class="fas fa-adjust"></i> Theme:</label>
                 <button id="theme-toggle-btn" class="icon-button" title="Toggle Theme">
                      <i class="fas fa-sun"></i> <!-- Default icon, updated by theme.js -->

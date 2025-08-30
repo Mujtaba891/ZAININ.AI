@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#302b63"/>
+    <link rel="icon" href="assets/logo.jpg">
+    <title>ZAININ AI - Admin Panel</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Global Theme Script -->
+    <script src="js/theme.js"></script>
+    <!-- Chart.js for graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="admin-page">
+
+    <div class="auth-box api-box admin-box">
+        <h1>Admin Panel <i class="fas fa-user-shield"></i></h1>
+        <p class="warning-message">
+            WARNING: Storing and using API keys directly in your browser is a SECURITY RISK!
+            For production, use a secure backend to handle API calls. This panel is for administrative convenience only.
+        </p>
+        <p class="help-text">
+             Manage global API keys and freemium settings for all users.
+        </p>
+
+        <h2>Global AI Service Keys</h2>
+        <div class="form-group">
+            <label for="admin-openrouter-key">OpenRouter API Key:</label>
+            <input type="text" id="admin-openrouter-key" placeholder="sk-or-..." autocomplete="off">
+            <p class="help-text">Primary key for AI chat. Get from <a href="https://openrouter.ai/keys" target="_blank">openrouter.ai/keys</a></p>
+        </div>
+
+        <div class="form-group">
+            <label for="admin-gemini-vision-key">Google Gemini Pro Vision API Key:</label>
+            <input type="text" id="admin-gemini-vision-key" placeholder="AIza..." autocomplete="off">
+            <p class="help-text">Key for Image Recognition. Get from <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a> (using gemini-2.0-flash endpoint as specified in apiHandler.js).</p>
+        </div>
+
+        <div class="form-group">
+            <label for="admin-serpapi-key">SerpApi API Key (for Web Search):</label>
+            <input type="text" id="admin-serpapi-key" placeholder="..." autocomplete="off">
+            <p class="help-text">Key for web search functionality. Get from <a href="https://serpapi.com/users/sign_up" target="_blank">serpapi.com/signup</a> (Optional)</p>
+        </div>
+
+        <h2 style="margin-top: 30px;">Freemium Settings</h2>
+        <div class="setting-item">
+            <label for="freemium-toggle"><i class="fas fa-gift"></i> Freemium Mode Enabled:</label>
+            <label class="switch">
+                <input type="checkbox" id="freemium-toggle">
+                <span class="slider round"></span>
+            </label>
+        </div>
+
+        <div class="form-group">
+            <label for="free-tier-message-limit">Free Tier Message Limit (per chat):</label>
+            <input type="number" id="free-tier-message-limit" value="10" min="1">
+            <p class="help-text">Number of messages a free user can send per chat before being prompted.</p>
+        </div>
+
+        <h2 style="margin-top: 30px;">Razorpay Settings <i class="fas fa-money-bill-wave"></i></h2>
+         <p class="warning-message">
+            The Razorpay Key Secret should NEVER be exposed client-side. Only Key ID is used here for demonstration.
+        </p>
+        <div class="form-group">
+            <label for="admin-razorpay-key-id">Razorpay Key ID:</label>
+            <input type="text" id="admin-razorpay-key-id" placeholder="rzp_test_..." autocomplete="off">
+            <p class="help-text">Your public Razorpay Key ID for payments. Get from <a href="https://dashboard.razorpay.com/app/keys" target="_blank">Razorpay Dashboard</a>.</p>
+        </div>
+        <!-- Secret Key is intentionally omitted for client-side security (would be on a backend) -->
+
+        <button id="save-admin-settings-btn"><i class="fas fa-save"></i> Save Admin Settings</button>
+        <p id="admin-message" class="message-text"></p>
+        <div class="divider"></div>
+
+        <h2 style="margin-top: 30px;">Revenue Overview <i class="fas fa-chart-line"></i></h2>
+        <div class="admin-stats">
+            <div class="stat-item">
+                <h3>Total Users</h3>
+                <p id="total-users-count">...</p>
+            </div>
+            <div class="stat-item">
+                <h3>Premium Users</h3>
+                <p id="premium-users-count">...</p>
+            </div>
+            <div class="stat-item">
+                <h3>Estimated Monthly Revenue</h3>
+                <p id="monthly-revenue">...</p>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="user-distribution-chart"></canvas>
+            <p class="help-text" style="margin-top:10px; text-align:center;">User distribution across Free and Premium plans.</p>
+        </div>
+
+        <div class="divider"></div>
+        <a href="/index.html" class="settings-link back-link"><i class="fas fa-arrow-left"></i> Back to Chat</a>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module" src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js"></script>
+
+    <!-- Your Scripts -->
+    <script type="module" src="js/firebase-config.js"></script>
+    <script type="module" src="js/admin.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('Service Worker registered successfully:', registration);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

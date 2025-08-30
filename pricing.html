@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#302b63"/>
+    <link rel="icon" href="assets/logo.jpg">
+    <title>ZAININ AI - Pricing</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Global Theme Script -->
+    <script src="js/theme.js"></script>
+</head>
+<body class="pricing-page">
+
+    <div class="pricing-container">
+        <h1>Choose Your ZAININ AI Plan</h1>
+        <p class="tagline">Unlock the full potential of your AI assistant.</p>
+
+        <div class="pricing-cards">
+            <!-- Free Plan -->
+            <div class="pricing-card free-plan" id="free-plan-card">
+                <h2>Free Plan</h2>
+                <p class="price">Free</p>
+                <ul class="features">
+                    <li><i class="fas fa-check-circle"></i> Limited Chat Messages (per chat)</li>
+                    <li><i class="fas fa-check-circle"></i> Limited Image Uploads</li>
+                    <li><i class="fas fa-times-circle"></i> No Web Search</li>
+                    <li><i class="fas fa-times-circle"></i> No Priority Support</li>
+                </ul>
+                <button class="current-plan-btn" disabled><i class="fas fa-star"></i> Current Plan</button>
+            </div>
+
+            <!-- Premium Plan -->
+            <div class="pricing-card premium-plan" id="premium-plan-card">
+                <span class="badge">Most Popular</span>
+                <h2>Premium Plan</h2>
+                <p class="price">$5.00/month</p>
+                <ul class="features">
+                    <li><i class="fas fa-check-circle"></i> Unlimited Chat Messages</li>
+                    <li><i class="fas fa-check-circle"></i> Unlimited Image Uploads</li>
+                    <li><i class="fas fa-check-circle"></i> Web Search Enabled</li>
+                    <li><i class="fas fa-check-circle"></i> Priority Support</li>
+                </ul>
+                <button id="subscribe-premium-btn" class="subscribe-btn"><i class="fas fa-arrow-up"></i> Upgrade Now</button>
+            </div>
+        </div>
+
+        <p id="pricing-message" class="message-text"></p>
+        <div class="divider"></div>
+        <a href="/profile.html" class="settings-link back-link"><i class="fas fa-arrow-left"></i> Back to Profile</a>
+    </div>
+
+    <!-- Razorpay SDK - loaded from CDN -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+    <!-- Firebase SDKs -->
+    <script type="module" src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js"></script>
+
+    <!-- Your Scripts -->
+    <script type="module" src="js/firebase-config.js"></script>
+    <script type="module" src="js/pricing.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('Service Worker registered successfully:', registration);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

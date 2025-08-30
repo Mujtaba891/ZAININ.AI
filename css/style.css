@@ -130,6 +130,7 @@ button:disabled {
 input[type="text"],
 input[type="email"],
 input[type="password"],
+input[type="number"], /* Added for admin panel */
 textarea {
     background-color: var(--input-bg);
     color: var(--text-color);
@@ -504,6 +505,26 @@ input:focus, textarea:focus {
     color: var(--text-color);
 }
 
+/* New: Upgrade to Premium link in sidebar */
+#upgrade-to-premium-sidebar-link {
+    margin-top: 10px;
+    background: linear-gradient(to right, #00c6ff, #0072ff); /* Bright gradient */
+    padding: 10px;
+    border-radius: 8px;
+    color: white;
+    text-align: center;
+    font-weight: 500;
+    display: flex; /* Ensure flex for icon */
+    align-items: center;
+    justify-content: center;
+     i { margin-right: 8px; color: white; }
+     &:hover {
+         opacity: 0.9;
+         text-decoration: none;
+     }
+}
+
+
 /* Custom Switch for Toggle Settings */
 .switch {
   position: relative;
@@ -678,7 +699,7 @@ input:checked + .slider:before {
      align-items: center;
      justify-content: center;
      font-size: 1.3em; /* Icon size */
-     color: var(--text-color-dark); /* Icon color */
+     color: var(--text-color); /* Changed from --text-color-dark */
      overflow: hidden; /* Hide overflowing image */
      align-self: flex-end; /* Align avatar to the bottom of the bubble group */
      /* Added background gradient for the avatar border/ring */
@@ -694,7 +715,7 @@ input:checked + .slider:before {
      }
       i { /* Style for the default icon */
           font-size: 1.3em;
-          color: var(--text-color-dark);
+          color: var(--text-color); /* Changed from --text-color-dark */
           background-color: var(--primary-color); /* Match inner background */
           border-radius: 50%;
           width: 100%;
@@ -730,12 +751,21 @@ input:checked + .slider:before {
         font-size: 0.9em;
          code { font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace; padding: 0; background: none; }
     }
-    strong { color: var(--text-color-light); } /* Highlight strong text */
+    strong { color: var(--text-color); } /* Highlight strong text, changed from --text-color-light */
 
     body[data-theme="light"] & { /* Light theme styles */
         pre { background-color: #e9ecef; color: #495057; } /* Light code block */
         strong { color: var(--text-color); }
     }
+}
+
+/* New: Image within chat message content */
+.chat-message .message-content .chat-image-content {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 10px; /* Space between image and text */
+    display: block; /* Ensure image is block level */
 }
 
 /* User message specific styles */
@@ -850,7 +880,7 @@ input:checked + .slider:before {
          height: 60px; /* Fixed height */
          overflow: hidden; /* Hide potential overflow */
          box-sizing: border-box; /* Include padding in size */
-          /* Use a subtle background color or animation if not using GIF */
+          /* Use a subtle background color or animation if no GIF */
           /* background-color: rgba(var(--accent-color-start-rgb, 74, 144, 226), 0.5); */
      }
      .message-content img {
@@ -905,6 +935,7 @@ input:checked + .slider:before {
     background-color: var(--secondary-color);
     border-top: 1px solid var(--border-color);
     display: flex;
+    flex-direction: column; /* Changed to column for image preview */
     align-items: center;
     position: sticky; /* Keep input visible when scrolling messages */
     bottom: 0;
@@ -914,8 +945,32 @@ input:checked + .slider:before {
      }
 }
 
-.input-wrapper {
-    flex-grow: 1;
+/* New: Freemium Message Display */
+.freemium-message-display {
+    width: 100%;
+    background-color: var(--warning-color);
+    color: var(--text-color); /* Assuming white text looks good on orange */
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 0.9em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    i { color: var(--text-color); }
+    .freemium-upgrade-link {
+        color: var(--text-color);
+        font-weight: 600;
+        text-decoration: underline;
+    }
+}
+
+
+/* New: Image Upload Area (the main input wrapper) */
+#image-upload-area {
+    width: 100%;
     display: flex;
     align-items: center;
     background-color: var(--input-bg);
@@ -925,6 +980,18 @@ input:checked + .slider:before {
      body[data-theme="light"] & { /* Light theme styles */
          background-color: var(--input-bg);
          border-color: var(--border-color);
+     }
+     /* New: Style for the image upload button itself */
+     #image-upload-btn {
+         background: none; /* Make it look like a regular icon button */
+         border: none;
+         color: var(--muted-text-color);
+         padding: 8px;
+         font-size: 1.3em;
+         transition: color 0.3s ease;
+     }
+     #image-upload-btn:hover:not(:disabled) {
+         color: var(--accent-color-start);
      }
 }
 
@@ -959,23 +1026,185 @@ input:checked + .slider:before {
     cursor: not-allowed;
 }
 
+/* New: Image Preview Area below input */
+.image-preview-area {
+    width: 100%;
+    max-width: 600px; /* Limit width */
+    position: relative;
+    margin-top: 15px;
+    border: 1px dashed var(--border-color);
+    border-radius: 8px;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--input-bg);
+    box-sizing: border-box;
+}
+.image-preview-area img {
+    max-width: 100%;
+    max-height: 150px;
+    border-radius: 6px;
+    object-fit: contain;
+}
+.image-preview-area .clear-image-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    padding: 2px 5px;
+    border-radius: 50%;
+    font-size: 0.9em;
+}
+.image-preview-area .clear-image-btn:hover {
+    background: var(--error-color);
+    color: white;
+}
+/* New: Styling for image upload button within edit area */
+.message-edit-area .upload-button-in-edit {
+    width: fit-content;
+    padding: 6px 10px;
+    font-size: 0.85em;
+    margin-top: 10px;
+    background: var(--secondary-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    box-shadow: none;
+}
+.message-edit-area .upload-button-in-edit:hover {
+    background-color: var(--border-color);
+    opacity: 1;
+}
+/* New: Styling for image preview in edit mode */
+.image-preview-area.edit-mode {
+    margin-top: 0; /* No extra margin when inside edit area */
+    margin-bottom: 10px;
+}
+.image-preview-area.edit-mode .clear-image-btn {
+    font-size: 1em; /* Slightly larger clear button for clarity */
+}
 
-/* --- API Page & Profile Page --- */
-.api-box, .profile-box {
+
+
+/* --- Admin Panel Page --- */
+.admin-box { /* Extends auth-box / api-box styles */
+    max-width: 700px;
+    padding: 40px;
+    margin: 40px auto;
+}
+.admin-box h1 {
+    font-size: 2em;
+    margin-bottom: 20px;
+}
+.admin-box h2 {
+    text-align: left;
+    margin-top: 30px;
+    margin-bottom: 15px;
+    font-size: 1.4em;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+}
+.admin-box .form-group {
+    margin-bottom: 20px;
+}
+.admin-box .form-group input {
+    width: 100%;
+}
+.admin-box .setting-item { /* Reuse sidebar setting item style */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    font-size: 1em;
+    padding: 10px 0;
+    border-bottom: 1px dashed var(--border-color);
+}
+.admin-box .setting-item:last-of-type {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+.admin-box .setting-item label {
+    display: flex;
+    align-items: center;
+    color: var(--muted-text-color);
+    font-weight: 400;
+}
+.admin-box .setting-item i {
+    margin-right: 10px;
+    color: var(--muted-text-color);
+}
+.admin-box button {
+    width: 100%;
+    margin-top: 30px;
+}
+.admin-box .back-link {
+    margin-top: 20px;
+}
+
+/* New: Admin Stats and Chart */
+.admin-stats {
+    display: flex;
+    justify-content: space-around;
+    gap: 15px;
+    margin-bottom: 30px;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+}
+.admin-stats .stat-item {
+    background-color: var(--input-bg);
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    flex: 1; /* Distribute space evenly */
+    min-width: 150px; /* Minimum width before wrapping */
+     body[data-theme="light"] & {
+         background-color: var(--input-bg);
+     }
+}
+.admin-stats .stat-item h3 {
+    font-size: 1.1em;
+    color: var(--muted-text-color);
+    margin-bottom: 10px;
+}
+.admin-stats .stat-item p {
+    font-size: 1.8em;
+    font-weight: 600;
+    margin: 0;
+    color: var(--accent-color-start);
+    text-align: center; /* Override default text-align */
+}
+
+.chart-container {
+    width: 100%;
+    max-width: 500px; /* Limit chart width */
+    margin: 20px auto;
+    background-color: var(--input-bg); /* Chart background */
+    padding: 20px;
+    border-radius: 8px;
+     body[data-theme="light"] & {
+         background-color: var(--input-bg);
+     }
+}
+.chart-container canvas {
+    max-height: 300px; /* Limit chart height */
+}
+
+
+/* --- Profile Page Specifics --- */
+.profile-box {
     background-color: var(--secondary-color);
     padding: 40px;
     border-radius: 12px;
     width: 100%;
     max-width: 600px;
-    margin: 40px auto; /* Center horizontally, add top/bottom margin */
+    margin: 40px auto;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-    box-sizing: border-box;
-     body[data-theme="light"] & { /* Light theme styles */
+     body[data-theme="light"] & {
          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
      }
 }
 
-.api-box h1, .profile-box h1 {
+.profile-box h1 {
     text-align: center;
     margin-bottom: 10px;
     font-size: 1.8em;
@@ -985,24 +1214,23 @@ input:checked + .slider:before {
     gap: 10px;
     font-weight: 600;
 }
-.api-box p, .profile-box p {
+.profile-box p {
     text-align: center;
     margin-bottom: 30px;
     color: var(--muted-text-color);
-    font-size: 1em; /* Ensure consistent font size */
+    font-size: 1em;
 }
 
-.api-box .form-group input,
 .profile-box .form-group input {
-    width: 100%; /* Overrides default input width */
+    width: 100%;
 }
 
-.api-box button, .profile-box button {
+.profile-box button {
     width: 100%;
     margin-top: 10px;
 }
 
-.api-box .back-link, .profile-box .back-link {
+.profile-box .back-link {
     display: block;
     text-align: center;
     margin-top: 20px;
@@ -1012,13 +1240,12 @@ input:checked + .slider:before {
      transition: background-color 0.3s ease, color 0.3s ease;
      i { margin-right: 8px; }
 }
-.api-box .back-link:hover, .profile-box .back-link:hover {
+.profile-box .back-link:hover {
     background-color: var(--border-color);
     color: var(--text-color);
     text-decoration: none;
 }
 
-/* Profile Page Specifics */
 .profile-box .profile-info {
      display: flex;
      align-items: center;
@@ -1031,29 +1258,28 @@ input:checked + .slider:before {
      width: 80px;
      height: 80px;
      border-radius: 50%;
-     background-color: var(--border-color); /* Default background */
+     background-color: var(--border-color);
      display: flex;
      align-items: center;
      justify-content: center;
      font-size: 2em;
-     color: var(--text-color-dark);
+     color: var(--text-color);
      flex-shrink: 0;
      overflow: hidden;
-      /* Added background gradient for the avatar border/ring */
      background: linear-gradient(45deg, var(--accent-color-start), var(--accent-color-end));
-     padding: 3px; /* Create a ring effect */
+     padding: 3px;
 }
 .profile-box .profile-avatar img {
      width: 100%;
      height: 100%;
      border-radius: 50%;
      object-fit: cover;
-      background-color: var(--secondary-color); /* Inner background */
+      background-color: var(--secondary-color);
 }
-.profile-box .profile-avatar i { /* Style for the default icon */
+.profile-box .profile-avatar i {
      font-size: 2em;
-     color: var(--text-color-dark);
-     background-color: var(--secondary-color); /* Match inner background */
+     color: var(--text-color);
+     background-color: var(--secondary-color);
      border-radius: 50%;
      width: 100%;
      height: 100%;
@@ -1061,8 +1287,8 @@ input:checked + .slider:before {
      align-items: center;
      justify-content: center;
 }
- body[data-theme="light"] .profile-box .profile-avatar { /* Light theme avatar */
-     background: var(--border-color); /* Solid border */
+ body[data-theme="light"] .profile-box .profile-avatar {
+     background: var(--border-color);
       i, img { background-color: var(--surface-color); }
  }
 
@@ -1079,7 +1305,7 @@ input:checked + .slider:before {
      margin: 0;
      color: var(--muted-text-color);
      font-size: 1em;
-     text-align: left; /* Override center alignment from parent */
+     text-align: left;
 }
 
 .profile-box .settings-section {
@@ -1087,22 +1313,61 @@ input:checked + .slider:before {
      padding-bottom: 30px;
      border-bottom: 1px solid var(--border-color);
 }
+.profile-box .settings-section:last-of-type { /* No border for the last section */
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 0;
+}
 .profile-box .settings-section h2 {
      font-size: 1.4em;
      margin-bottom: 20px;
      text-align: center;
      font-weight: 600;
 }
-/* Re-use setting-item styles from sidebar */
+.profile-box .settings-section .setting-item { /* Reuse sidebar setting item style for consistency */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 0.95em;
+    padding: 5px 0;
+}
+.profile-box .settings-section .setting-item label {
+    display: flex;
+    align-items: center;
+    color: var(--muted-text-color);
+    font-weight: 400; /* Less bold than labels in form groups */
+}
+.profile-box .settings-section .setting-item i {
+     margin-right: 8px;
+     color: var(--muted-text-color);
+}
+.profile-box .settings-section .setting-item .settings-link {
+    font-size: 1em; /* Match parent font size */
+     padding: 0; /* Remove padding from link if inside setting-item */
+     background: none;
+}
+.profile-box .settings-section .setting-item .settings-link:hover {
+     background: none;
+}
+.profile-box .settings-section .setting-item .current-plan-btn {
+    background: var(--border-color);
+    color: var(--muted-text-color);
+    padding: 6px 10px;
+    font-size: 0.8em;
+    cursor: default;
+    opacity: 1;
+    &:hover { opacity: 1; }
+}
 
 
 .profile-box .other-actions button {
     margin-bottom: 15px;
-    background: var(--secondary-color); /* Less prominent button */
+    background: var(--secondary-color);
     border: 1px solid var(--border-color);
     color: var(--text-color);
     box-shadow: none;
-     body[data-theme="light"] & { /* Light theme style */
+     body[data-theme="light"] & {
          background: var(--surface-color);
          border-color: var(--border-color);
          color: var(--text-color);
@@ -1125,7 +1390,7 @@ input:checked + .slider:before {
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 2000; /* Above everything */
+    z-index: 2000;
     backdrop-filter: blur(5px);
 }
 
@@ -1137,7 +1402,7 @@ input:checked + .slider:before {
     width: 90%;
     position: relative;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-     body[data-theme="light"] & { /* Light theme styles */
+     body[data-theme="light"] & {
          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
      }
 }
@@ -1180,7 +1445,122 @@ input:checked + .slider:before {
     left: 0;
     width: 100%;
     height: 100%;
-    border: none; /* Remove iframe border */
+    border: none;
+}
+
+
+/* New: Pricing Page Styles */
+.pricing-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+    flex-direction: column; /* Center content vertically */
+}
+.pricing-container {
+    background-color: var(--secondary-color);
+    padding: 40px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 900px;
+    text-align: center;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+     body[data-theme="light"] & {
+         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+     }
+}
+.pricing-container h1 {
+    font-size: 2.2em;
+    margin-bottom: 10px;
+}
+.pricing-container .tagline {
+    font-size: 1.1em;
+    color: var(--muted-text-color);
+    margin-bottom: 40px;
+}
+.pricing-cards {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap; /* Allow cards to wrap on smaller screens */
+}
+.pricing-card {
+    background-color: var(--input-bg); /* Use input background for cards */
+    padding: 30px;
+    border-radius: 12px;
+    flex: 1; /* Allow cards to grow and shrink */
+    min-width: 300px; /* Minimum width for each card */
+    max-width: 40%; /* Maximum width for two-column layout */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Push button to bottom */
+    position: relative;
+    border: 2px solid transparent; /* Default border */
+    transition: all 0.3s ease;
+     body[data-theme="light"] & {
+         background-color: var(--input-bg);
+     }
+}
+.pricing-card.active {
+    border-color: var(--accent-color-start); /* Highlight active plan */
+    box-shadow: 0 0 15px rgba(var(--accent-color-start-rgb), 0.5);
+}
+.pricing-card .badge {
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent-color-end);
+    color: white;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 0.8em;
+    font-weight: 600;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+.pricing-card h2 {
+    font-size: 1.8em;
+    margin-bottom: 15px;
+}
+.pricing-card .price {
+    font-size: 2.5em;
+    font-weight: 700;
+    color: var(--accent-color-start);
+    margin-bottom: 25px;
+}
+.pricing-card .features {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 30px;
+    text-align: left;
+    flex-grow: 1; /* Make feature list grow */
+}
+.pricing-card .features li {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    color: var(--muted-text-color);
+}
+.pricing-card .features li i {
+    margin-right: 10px;
+    font-size: 1.2em;
+}
+.pricing-card .features li .fa-check-circle { color: var(--success-color); }
+.pricing-card .features li .fa-times-circle { color: var(--error-color); }
+.pricing-card .subscribe-btn {
+    width: 100%;
+    margin-top: 20px; /* Space between features and button */
+}
+.pricing-card .current-plan-btn {
+    width: 100%;
+    margin-top: 20px;
+    background: var(--border-color); /* Muted color for current plan */
+    color: var(--muted-text-color);
+    cursor: default;
+    opacity: 1;
+    &:hover { opacity: 1; }
 }
 
 
@@ -1200,15 +1580,15 @@ input:checked + .slider:before {
 
 
     /* Auth/API/Profile Boxes */
-    .auth-box, .api-box, .profile-box {
+    .auth-box, .profile-box, .admin-box, .pricing-container { /* Include pricing container */
         padding: 30px 20px;
-        margin: 20px auto; /* Reduce margin on smaller screens */
+        margin: 20px auto;
     }
-    .auth-box h1, .api-box h1, .profile-box h1 {
+    .auth-box h1, .profile-box h1, .admin-box h1, .pricing-container h1 {
         font-size: 1.5em;
-        gap: 5px; /* Smaller gap */
+        gap: 5px;
     }
-     .auth-box p, .api-box p, .profile-box p {
+     .auth-box p, .profile-box p, .admin-box p, .pricing-container .tagline {
          font-size: 0.9em;
      }
     #google-signin-btn { font-size: 0.9em; }
@@ -1220,12 +1600,10 @@ input:checked + .slider:before {
         transform: translateX(-250px);
         padding: 15px;
     }
-     /* Keep the main-app margin-left 0 on mobile */
     #main-app.sidebar-active #chat-container {
         margin-left: 0;
-        width: 100%; /* Take full width */
+        width: 100%;
     }
-    /* Add a temporary overlay to the main content when sidebar is open on mobile */
     #main-app.sidebar-active::after {
         content: '';
         position: fixed;
@@ -1234,8 +1612,7 @@ input:checked + .slider:before {
         right: 0;
         bottom: 0;
         background-color: rgba(0, 0, 0, 0.5);
-        z-index: 900; /* Below sidebar, above main content */
-         /* Only apply on mobile */
+        z-index: 900;
          @media (max-width: 768px) { display: block; }
          @media (min-width: 769px) { display: none; }
     }
@@ -1247,13 +1624,13 @@ input:checked + .slider:before {
     .chat-history h3 { font-size: 1em; }
     #chat-history-list li a { font-size: 0.9em; padding: 8px 10px; }
      .chat-history-item-actions {
-         background-color: transparent; /* Hide background bubble on mobile hover */
+         background-color: transparent;
          box-shadow: none;
      }
      .chat-history-item-actions .icon-button {
-          font-size: 0.8em; /* Smaller icons */
+          font-size: 0.8em;
           padding: 3px;
-          color: var(--muted-text-color); /* Keep color consistent */
+          color: var(--muted-text-color);
      }
       .chat-history-item-actions .icon-button:hover {
            color: var(--accent-color-start);
@@ -1262,6 +1639,7 @@ input:checked + .slider:before {
      .sidebar-footer .setting-item i, .sidebar-footer .settings-link i { font-size: 1em; margin-right: 5px; }
      .user-profile { font-size: 0.85em; }
     #logout-btn { font-size: 1em; }
+    #upgrade-to-premium-sidebar-link { font-size: 0.9em; padding: 8px; }
 
 
     /* Chat Header */
@@ -1281,14 +1659,13 @@ input:checked + .slider:before {
      #chat-messages {
         padding: 15px;
         gap: 15px;
-        /* min-height adjusted in JS */
-        padding-bottom: 50px; /* Increased padding for actions */
+        padding-bottom: 50px;
      }
      .chat-message {
-         max-width: 100%; /* Allow messages to take full width */
+         max-width: 100%;
      }
      .chat-message .avatar {
-         width: 30px; /* Slightly smaller avatar */
+         width: 30px;
          height: 30px;
          font-size: 1.1em;
           img, i { font-size: 1.1em;}
@@ -1299,20 +1676,20 @@ input:checked + .slider:before {
      .chat-message .message-content {
          padding: 10px 12px;
          font-size: 0.95em;
-         max-width: calc(100% - 46px); /* Adjust max width */
+         max-width: calc(100% - 46px);
      }
       .chat-message .message-content pre { font-size: 0.85em; }
 
     /* Mobile Message Actions */
     .message-actions {
-        bottom: -25px; /* Adjust distance */
-        padding: 2px 6px; /* Smaller padding */
-        gap: 3px; /* Smaller gap */
+        bottom: -25px;
+        padding: 2px 6px;
+        gap: 3px;
     }
      .chat-message.user .message-actions { left: 5px; }
      .chat-message.bot .message-actions { right: 5px; }
      .message-actions .icon-button {
-         font-size: 0.8em; /* Smaller icons on mobile */
+         font-size: 0.8em;
          padding: 3px;
      }
 
@@ -1353,6 +1730,19 @@ input:checked + .slider:before {
         font-size: 1.3em;
         padding: 6px;
     }
+    /* Image preview mobile */
+    .image-preview-area {
+        margin-top: 10px;
+        padding: 8px;
+        max-width: calc(100% - 30px);
+    }
+    .image-preview-area img {
+        max-height: 100px;
+    }
+    .freemium-message-display {
+        font-size: 0.8em;
+        padding: 8px 10px;
+    }
 
     /* Profile Page Specifics */
     .profile-box .profile-info {
@@ -1376,19 +1766,31 @@ input:checked + .slider:before {
     .profile-box .settings-section h2 { font-size: 1.2em; }
      .profile-box .other-actions button { font-size: 0.9em; padding: 10px 15px; }
 
+    /* Pricing Page Specifics */
+    .pricing-cards {
+        flex-direction: column;
+        align-items: center;
+    }
+    .pricing-card {
+        max-width: 90%; /* Allow cards to take more width on mobile */
+        min-width: unset;
+    }
+    .pricing-card h2 { font-size: 1.5em; }
+    .pricing-card .price { font-size: 2em; }
+    .pricing-card .features li { font-size: 0.9em; }
 
-    /* Modal */
-    .modal-content {
-         padding: 20px;
-         width: 95%;
+    /* Admin Page Specifics */
+    .admin-box h2 { font-size: 1.2em; }
+    .admin-stats .stat-item {
+        min-width: 100%; /* Stack stats vertically */
     }
-    .modal-close-btn {
-         top: 10px;
-         right: 10px;
-         font-size: 1.2em;
+    .admin-stats .stat-item h3 { font-size: 1em; }
+    .admin-stats .stat-item p { font-size: 1.5em; }
+    .chart-container {
+        padding: 10px;
     }
-    .modal-content h2 {
-         font-size: 1.3em;
+    .chart-container canvas {
+        max-height: 200px;
     }
 }
 
@@ -1407,21 +1809,6 @@ input:checked + .slider:before {
 
 /* Style for the container around code blocks */
 .code-block-container {
-    position: relative; /* Needed to position the button */
-    margin: 1em 0; /* Add some space around the code block */
-     /* Inherit background/padding from .message-content pre */
-    background-color: rgba(0, 0, 0, 0.3);
-    padding: 10px;
-    border-radius: 8px;
-    overflow-x: auto; /* Keep horizontal scroll for code */
-}
-body[data-theme="light"] .code-block-container {
-     background-color: #e9ecef;
-}
-
-/* In style.css, add or update the code block styles */
-
-.code-block-container {
     position: relative;
     margin: 1em 0;
     background-color: rgba(0, 0, 0, 0.3);
@@ -1431,13 +1818,12 @@ body[data-theme="light"] .code-block-container {
      body[data-theme="light"] & { background-color: #e9ecef; }
 }
 
-/* Style for the language display (optional) */
 .code-block-container .code-lang {
     position: absolute;
     top: 5px;
-    left: 10px; /* Position inside the padding */
+    left: 10px;
     font-size: 0.8em;
-    color: rgba(255, 255, 255, 0.5); /* Subtle color */
+    color: rgba(255, 255, 255, 0.5);
     z-index: 2;
      body[data-theme="light"] & { color: rgba(0, 0, 0, 0.5); }
 }
@@ -1447,7 +1833,7 @@ body[data-theme="light"] .code-block-container {
     top: 5px;
     right: 5px;
     background: rgba(255, 255, 255, 0.1);
-    color: var(--text-color-dark);
+    color: var(--text-color);
     padding: 4px 8px;
     font-size: 0.8em;
     border-radius: 4px;
@@ -1471,8 +1857,7 @@ body[data-theme="light"] .code-block-container {
 
 .code-block-container pre {
     margin: 0;
-    padding-top: 25px; /* Make space for the button/lang display */
-     /* Inherit other styles from .message-content pre */
+    padding-top: 25px;
     background: none;
     overflow-x: auto;
 }

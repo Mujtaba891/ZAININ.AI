@@ -1,25 +1,59 @@
 // js/profile.js
 import { auth, db } from "./firebase-config.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
 document.addEventListener('DOMContentLoaded', () => {
     const userEmailElement = document.getElementById('user-email-profile');
     const userNameElement = document.getElementById('user-name');
     const userUidElement = document.getElementById('user-uid');
     const userAvatarElement = document.getElementById('profile-avatar');
+    const membershipStatusSpan = document.getElementById('membership-status');
+    const upgradeLinkContainer = document.getElementById('upgrade-to-premium-link-container');
+    const manageSubscriptionLinkContainer = document.getElementById('manage-subscription-link-container');
     const logoutBtn = document.getElementById('logout-btn');
-    // Assume themeToggleBtn exists and theme.js handles it
 
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
         if (user) {
             // User is signed in
             userEmailElement.textContent = user.email || 'N/A';
-            userNameElement.textContent = user.displayName || 'User'; // Use display name if available
-            userUidElement.textContent = `UID: ${user.uid}`; // Display UID
+            userNameElement.textContent = user.displayName || 'User';
+            userUidElement.textContent = `UID: ${user.uid}`;
+
             if (user.photoURL) {
                 userAvatarElement.innerHTML = `<img src="${user.photoURL}" alt="User Avatar">`;
             } else {
-                 userAvatarElement.innerHTML = `<i class="fas fa-user"></i>`; // Default icon
+                 userAvatarElement.innerHTML = `<i class="fas fa-user"></i>`;
+            }
+
+            // Load user profile for premium status
+            try {
+                const profileDocRef = doc(db, 'users', user.uid, 'profile', 'data');
+                const profileSnap = await getDoc(profileDocRef);
+
+                if (profileSnap.exists()) {
+                    const data = profileSnap.data();
+                    const isPremium = data.isPremium || false;
+
+                    if (isPremium) {
+                        membershipStatusSpan.textContent = 'Premium User';
+                        membershipStatusSpan.classList.add('success-message');
+                        upgradeLinkContainer.classList.add('hidden');
+                        manageSubscriptionLinkContainer.classList.remove('hidden');
+                    } else {
+                        membershipStatusSpan.textContent = 'Free User';
+                        membershipStatusSpan.classList.remove('success-message');
+                        upgradeLinkContainer.classList.remove('hidden');
+                        manageSubscriptionLinkContainer.classList.add('hidden');
+                    }
+                } else {
+                    membershipStatusSpan.textContent = 'Free User (No profile data)';
+                    upgradeLinkContainer.classList.remove('hidden');
+                    manageSubscriptionLinkContainer.classList.add('hidden');
+                }
+            } catch (error) {
+                console.error("Error loading user premium status:", error);
+                membershipStatusSpan.textContent = 'Error loading status';
             }
 
         } else {
@@ -35,9 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // onAuthStateChanged handles redirect
         } catch (error) {
             console.error("Logout error:", error);
-            alert("Error logging out. Please try again."); // Simple alert for error
+            alert("Error logging out. Please try again.");
         }
     });
-
-    // Note: Theme toggle logic is assumed to be in theme.js
 });

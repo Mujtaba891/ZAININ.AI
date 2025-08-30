@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#302b63"/>
     <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png">
-    <link rel="manifest" href="/manifest.json"> <!-- Link to the manifest file -->
+    <link rel="manifest" href="/manifest.json">
     <link rel="icon" href="assets/logo.jpg">
     <title>ZAININ AI - Your Futuristic AI Agent</title>
     <link rel="stylesheet" href="css/style.css">
@@ -39,8 +39,9 @@
                             <span class="slider round"></span>
                         </label>
                     </div>
-                     <div class="setting-item">
-                        <a href="/api.html" class="settings-link"><i class="fas fa-key"></i> Manage API Keys</a>
+                     <!-- Admin Panel Link - Visible only to admins -->
+                     <div class="setting-item admin-only hidden" id="admin-panel-link-container">
+                        <a href="/admin.html" class="settings-link"><i class="fas fa-user-shield"></i> Admin Panel</a>
                     </div>
                      <!-- Theme Toggle Button - JS in theme.js handles click -->
                     <div class="setting-item">
@@ -73,9 +74,18 @@
                 <!-- Initial welcome message will be added by JS -->
             </div>
             <footer id="chat-input-area">
-                <div class="input-wrapper">
+                <div id="freemium-message-display" class="freemium-message-display hidden">
+                    <!-- Freemium message populated by JS -->
+                </div>
+                <div id="image-upload-area" class="input-wrapper">
+                    <button id="image-upload-btn" class="icon-button" title="Upload Image"><i class="fas fa-image"></i></button>
+                    <input type="file" id="image-input-file" accept="image/*" class="hidden">
                     <textarea id="message-input" placeholder="Message ZAININ AI..." rows="1"></textarea>
                     <button id="send-btn" title="Send Message"><i class="fas fa-paper-plane"></i></button>
+                </div>
+                <div id="image-preview-area" class="image-preview-area hidden">
+                    <img id="uploaded-image-preview" src="#" alt="Image Preview">
+                    <button id="clear-image-btn" class="icon-button" title="Clear Image"><i class="fas fa-times"></i></button>
                 </div>
             </footer>
         </main>

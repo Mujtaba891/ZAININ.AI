@@ -7,6 +7,7 @@ import { getAuth } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth
 import { getFirestore } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 import { GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js"; // Import GoogleAuthProvider
 
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyARVt5zXpIgtlmLfM92lP7ILLL8zkPs_ek",
   authDomain: "zainin-ai.firebaseapp.com",
