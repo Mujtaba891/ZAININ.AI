@@ -28,22 +28,29 @@
 
         <h2>Global AI Service Keys</h2>
         <div class="form-group">
-            <label for="admin-openrouter-key">OpenRouter API Key:</label>
-            <input type="text" id="admin-openrouter-key" placeholder="sk-or-..." autocomplete="off">
-            <p class="help-text">Primary key for AI chat. Get from <a href="https://openrouter.ai/keys" target="_blank">openrouter.ai/keys</a></p>
+            <label for="admin-gemini-api-key">Google Gemini API Key:</label>
+            <input type="text" id="admin-gemini-api-key" placeholder="AIza..." autocomplete="off">
+            <p class="help-text">Primary key for all Gemini functionality (chat, multimodal) using the <strong>gemini-2.0-flash</strong> model. Get from <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a>.</p>
         </div>
 
         <div class="form-group">
-            <label for="admin-gemini-vision-key">Google Gemini Pro Vision API Key:</label>
-            <input type="text" id="admin-gemini-vision-key" placeholder="AIza..." autocomplete="off">
-            <p class="help-text">Key for Image Recognition. Get from <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a> (using gemini-2.0-flash endpoint as specified in apiHandler.js).</p>
+            <label for="admin-weatherapi-key">WeatherAPI.com Key:</label>
+            <input type="text" id="admin-weatherapi-key" placeholder="0eec63..." autocomplete="off">
+            <p class="help-text">Key for real-time weather updates. Get from <a href="https://www.weatherapi.com/signup.aspx" target="_blank">WeatherAPI.com</a>.</p>
         </div>
 
         <div class="form-group">
-            <label for="admin-serpapi-key">SerpApi API Key (for Web Search):</label>
-            <input type="text" id="admin-serpapi-key" placeholder="..." autocomplete="off">
-            <p class="help-text">Key for web search functionality. Get from <a href="https://serpapi.com/users/sign_up" target="_blank">serpapi.com/signup</a> (Optional)</p>
+            <label for="admin-replicate-api-token">Replicate API Token (for Image Generation):</label>
+            <input type="text" id="admin-replicate-api-token" placeholder="r8_..." autocomplete="off">
+            <p class="help-text">Token for AI image generation (Ideogram v3 Turbo). Get from <a href="https://replicate.com/account/api-tokens" target="_blank">Replicate.com</a>. (WARNING: DO NOT EXPOSE IN PRODUCTION)</p>
         </div>
+
+        <div class="form-group">
+            <label for="admin-duckduckgo-notes">DuckDuckGo Search (no key required for basic usage):</label>
+            <input type="text" id="admin-duckduckgo-notes" value="Using DuckDuckGo for web search." disabled>
+            <p class="help-text">DuckDuckGo API generally does not require an API key for basic JSON searches. If you need a more robust search, you might consider other APIs like SerpApi.</p>
+        </div>
+
 
         <h2 style="margin-top: 30px;">Freemium Settings</h2>
         <div class="setting-item">
@@ -93,7 +100,7 @@
 
         <div class="chart-container">
             <canvas id="user-distribution-chart"></canvas>
-            <p class="help-text" style="margin-top:10px; text-align:center;">User distribution across Free and Premium plans.</p>
+            <p class="help-text" style="margin-top:10px; text-align:center;">User distribution across Free, Basic, and Premium plans.</p>
         </div>
 
         <div class="divider"></div>

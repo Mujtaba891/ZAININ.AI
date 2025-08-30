@@ -13,8 +13,61 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
      <!-- Global Theme Script - MUST be synchronous to prevent FOUC (Flash of Unstyled Content) -->
      <script src="js/theme.js"></script>
+     <!-- Inline style for immediate loader to prevent FOUC -->
+     <style>
+        #app-loader {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #0d1137; /* Match dark theme primary */
+            color: #ffffff;
+            font-size: 1.5em;
+            flex-direction: column;
+            gap: 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            transition: opacity 0.3s ease;
+        }
+        #app-loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        #app-loader .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #4a90e2; /* Accent color */
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Light theme loader override */
+        body[data-theme="light"] #app-loader {
+            background-color: #f0f2f5;
+            color: #333333;
+        }
+        body[data-theme="light"] #app-loader .spinner {
+            border: 4px solid rgba(51, 51, 51, 0.3);
+            border-top: 4px solid #007bff;
+        }
+    </style>
 </head>
 <body>
+
+    <!-- Loading Overlay -->
+    <div id="app-loader">
+        <div class="spinner"></div>
+        <p>Loading ZAININ AI...</p>
+    </div>
 
     <!-- Main Application -->
     <div id="main-app" class="hidden">
@@ -43,6 +96,10 @@
                      <div class="setting-item admin-only hidden" id="admin-panel-link-container">
                         <a href="/admin.html" class="settings-link"><i class="fas fa-user-shield"></i> Admin Panel</a>
                     </div>
+                     <!-- Upgrade to Premium Link - Visible to non-premium users when freemium is active -->
+                     <a href="/pricing.html" id="upgrade-to-premium-sidebar-link" class="settings-link hidden" style="justify-content: center; margin-top: 10px; background: linear-gradient(to right, #00c6ff, #0072ff); padding: 10px; border-radius: 8px; color: white; text-align: center; font-weight: 500;">
+                        <i class="fas fa-arrow-up" style="margin-right: 8px; color: white;"></i> Upgrade to Premium
+                    </a>
                      <!-- Theme Toggle Button - JS in theme.js handles click -->
                     <div class="setting-item">
                         <label><i class="fas fa-adjust"></i> Theme:</label>
@@ -77,10 +134,11 @@
                 <div id="freemium-message-display" class="freemium-message-display hidden">
                     <!-- Freemium message populated by JS -->
                 </div>
-                <div id="image-upload-area" class="input-wrapper">
+                <div id="text-input-wrapper" class="input-wrapper">
                     <button id="image-upload-btn" class="icon-button" title="Upload Image"><i class="fas fa-image"></i></button>
                     <input type="file" id="image-input-file" accept="image/*" class="hidden">
                     <textarea id="message-input" placeholder="Message ZAININ AI..." rows="1"></textarea>
+                    <button id="voice-input-btn" class="icon-button" title="Voice Input"><i class="fas fa-microphone"></i></button>
                     <button id="send-btn" title="Send Message"><i class="fas fa-paper-plane"></i></button>
                 </div>
                 <div id="image-preview-area" class="image-preview-area hidden">
@@ -90,6 +148,9 @@
             </footer>
         </main>
     </div>
+
+    <!-- Hidden audio element for TTS -->
+    <audio id="tts-audio" src="" class="hidden"></audio>
 
     <!-- External and App Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>

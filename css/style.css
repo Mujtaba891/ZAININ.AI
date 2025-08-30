@@ -968,8 +968,8 @@ input:checked + .slider:before {
 }
 
 
-/* New: Image Upload Area (the main input wrapper) */
-#image-upload-area {
+/* New: Input Wrapper (now contains image, text, voice, send buttons) */
+#text-input-wrapper { /* Renamed from #image-upload-area */
     width: 100%;
     display: flex;
     align-items: center;
@@ -1025,6 +1025,34 @@ input:checked + .slider:before {
     color: var(--border-color);
     cursor: not-allowed;
 }
+
+/* New: Voice Input Button Styling */
+#voice-input-btn {
+    background: none;
+    border: none;
+    color: var(--muted-text-color);
+    padding: 8px;
+    font-size: 1.3em;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+#voice-input-btn:hover:not(:disabled) {
+    color: var(--accent-color-start);
+}
+#voice-input-btn:disabled {
+    color: var(--border-color);
+    cursor: not-allowed;
+}
+#voice-input-btn.listening {
+    color: var(--error-color); /* Red color when listening */
+    animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.7; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
 
 /* New: Image Preview Area below input */
 .image-preview-area {
@@ -1313,7 +1341,7 @@ input:checked + .slider:before {
      padding-bottom: 30px;
      border-bottom: 1px solid var(--border-color);
 }
-.profile-box .settings-section:last-of-type { /* No border for the last section */
+.profile-box .settings-section:last-of-type {
     border-bottom: none;
     padding-bottom: 0;
     margin-bottom: 0;
@@ -1719,7 +1747,7 @@ input:checked + .slider:before {
     #chat-input-area {
         padding: 10px 15px;
     }
-    .input-wrapper {
+    #text-input-wrapper { /* Renamed */
         padding-right: 5px;
     }
     #message-input {
@@ -1727,6 +1755,10 @@ input:checked + .slider:before {
          font-size: 0.9em;
     }
     #send-btn {
+        font-size: 1.3em;
+        padding: 6px;
+    }
+    #voice-input-btn {
         font-size: 1.3em;
         padding: 6px;
     }
@@ -1772,7 +1804,7 @@ input:checked + .slider:before {
         align-items: center;
     }
     .pricing-card {
-        max-width: 90%; /* Allow cards to take more width on mobile */
+        max-width: 90%;
         min-width: unset;
     }
     .pricing-card h2 { font-size: 1.5em; }
@@ -1782,7 +1814,7 @@ input:checked + .slider:before {
     /* Admin Page Specifics */
     .admin-box h2 { font-size: 1.2em; }
     .admin-stats .stat-item {
-        min-width: 100%; /* Stack stats vertically */
+        min-width: 100%;
     }
     .admin-stats .stat-item h3 { font-size: 1em; }
     .admin-stats .stat-item p { font-size: 1.5em; }

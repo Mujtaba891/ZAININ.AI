@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#302b63"/>
     <link rel="icon" href="assets/logo.jpg">
-    <title>ZAININ AI - Pricing</title>
+    <title>ZAININ AI - Pricing Plans</title>
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -14,45 +14,62 @@
 </head>
 <body class="pricing-page">
 
-    <div class="pricing-container">
+    <div class="pricing-container auth-box api-box">
         <h1>Choose Your ZAININ AI Plan</h1>
-        <p class="tagline">Unlock the full potential of your AI assistant.</p>
+        <p class="help-text">
+            Unlock advanced features and unlimited access with a Premium plan.
+        </p>
+        <p class="warning-message" style="margin-top: 20px;">
+            <i class="fas fa-exclamation-triangle"></i> **SECURITY WARNING:** For this client-side-only demo, Razorpay payment initiation is handled directly in JavaScript. In a production application, **always** create Razorpay orders and verify payments on a **secure backend server** to prevent fraud and ensure data integrity.
+        </p>
+
+        <div id="pricing-message" class="message-text"></div>
 
         <div class="pricing-cards">
-            <!-- Free Plan -->
-            <div class="pricing-card free-plan" id="free-plan-card">
-                <h2>Free Plan</h2>
-                <p class="price">Free</p>
+            <!-- Free Plan Card -->
+            <div class="pricing-card" id="free-plan-card">
+                <h2>Free Tier</h2>
+                <div class="price">FREE</div>
+                <p>Limited access for casual use.</p>
                 <ul class="features">
-                    <li><i class="fas fa-check-circle"></i> Limited Chat Messages (per chat)</li>
-                    <li><i class="fas fa-check-circle"></i> Limited Image Uploads</li>
+                    <li><i class="fas fa-check-circle"></i> Basic AI Chat</li>
+                    <li><i class="fas fa-check-circle"></i> <span id="free-tier-message-limit-display">10</span> Messages per chat (configurable)</li>
+                    <li><i class="fas fa-check-circle"></i> Access to embedded Knowledge Base</li>
                     <li><i class="fas fa-times-circle"></i> No Web Search</li>
-                    <li><i class="fas fa-times-circle"></i> No Priority Support</li>
+                    <li><i class="fas fa-times-circle"></i> No Image Recognition</li>
+                    <li><i class="fas fa-times-circle"></i> No Voice Chat</li>
                 </ul>
-                <button class="current-plan-btn" disabled><i class="fas fa-star"></i> Current Plan</button>
+                <button class="plan-btn current-plan-btn hidden" disabled><i class="fas fa-star"></i> Current Plan</button>
+                <button class="plan-btn disabled" disabled><i class="fas fa-ban"></i> Cannot Upgrade</button>
             </div>
 
-            <!-- Premium Plan -->
-            <div class="pricing-card premium-plan" id="premium-plan-card">
-                <span class="badge">Most Popular</span>
-                <h2>Premium Plan</h2>
-                <p class="price">$5.00/month</p>
+            <!-- Premium Plan Card -->
+            <div class="pricing-card premium-card" id="premium-plan-card">
+                <h2>Premium</h2>
+                <div class="price">₹500<span class="per-month">/month</span></div>
+                <p>Unlock full potential with unlimited access.</p>
                 <ul class="features">
-                    <li><i class="fas fa-check-circle"></i> Unlimited Chat Messages</li>
-                    <li><i class="fas fa-check-circle"></i> Unlimited Image Uploads</li>
-                    <li><i class="fas fa-check-circle"></i> Web Search Enabled</li>
-                    <li><i class="fas fa-check-circle"></i> Priority Support</li>
+                    <li><i class="fas fa-check-circle"></i> All Free Tier Features, PLUS:</li>
+                    <li><i class="fas fa-check-circle"></i> <strong>Unlimited</strong> Messages per chat</li>
+                    <li><i class="fas fa-check-circle"></i> Web Search (SerpAPI) Integration</li>
+                    <li><i class="fas fa-check-circle"></i> Image Recognition (Multimodal AI)</li>
+                    <li><i class="fas fa-check-circle"></i> Voice Input & Text-to-Speech</li>
+                    <li><i class="fas fa-check-circle"></i> Priority Customer Support</li>
                 </ul>
-                <button id="subscribe-premium-btn" class="subscribe-btn"><i class="fas fa-arrow-up"></i> Upgrade Now</button>
+                <button class="plan-btn upgrade-btn" data-plan="premium" data-amount="50000"><i class="fas fa-arrow-alt-circle-up"></i> Upgrade to Premium</button>
+                <button class="plan-btn current-plan-btn hidden" disabled><i class="fas fa-star"></i> Current Plan</button>
+                <button class="plan-btn disabled hidden" disabled><i class="fas fa-ban"></i> Upgrade Unavailable</button>
             </div>
         </div>
 
-        <p id="pricing-message" class="message-text"></p>
         <div class="divider"></div>
-        <a href="/profile.html" class="settings-link back-link"><i class="fas fa-arrow-left"></i> Back to Profile</a>
+        <div class="other-actions">
+            <a href="/index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to Chat</a>
+            <a href="/profile.html" class="back-link"><i class="fas fa-user"></i> View Profile</a>
+        </div>
     </div>
 
-    <!-- Razorpay SDK - loaded from CDN -->
+    <!-- Razorpay SDK -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
     <!-- Firebase SDKs -->

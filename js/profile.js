@@ -26,33 +26,33 @@ document.addEventListener('DOMContentLoaded', () => {
                  userAvatarElement.innerHTML = `<i class="fas fa-user"></i>`;
             }
 
-            // Load user profile for premium status
+            // Load user profile for planType and premium status
             try {
                 const profileDocRef = doc(db, 'users', user.uid, 'profile', 'data');
                 const profileSnap = await getDoc(profileDocRef);
 
+                let userPlanType = 'free'; // Default
+                let isPremium = false;
+
                 if (profileSnap.exists()) {
                     const data = profileSnap.data();
-                    const isPremium = data.isPremium || false;
+                    userPlanType = data.planType || 'free';
+                    isPremium = data.isPremium || false;
+                }
 
-                    if (isPremium) {
-                        membershipStatusSpan.textContent = 'Premium User';
-                        membershipStatusSpan.classList.add('success-message');
-                        upgradeLinkContainer.classList.add('hidden');
-                        manageSubscriptionLinkContainer.classList.remove('hidden');
-                    } else {
-                        membershipStatusSpan.textContent = 'Free User';
-                        membershipStatusSpan.classList.remove('success-message');
-                        upgradeLinkContainer.classList.remove('hidden');
-                        manageSubscriptionLinkContainer.classList.add('hidden');
-                    }
+                if (isPremium) { // Check isPremium first for styling
+                    membershipStatusSpan.textContent = `${userPlanType.charAt(0).toUpperCase() + userPlanType.slice(1)} User`;
+                    membershipStatusSpan.classList.add('success-message');
+                    upgradeLinkContainer.classList.add('hidden');
+                    manageSubscriptionLinkContainer.classList.remove('hidden');
                 } else {
-                    membershipStatusSpan.textContent = 'Free User (No profile data)';
+                    membershipStatusSpan.textContent = 'Free User';
+                    membershipStatusSpan.classList.remove('success-message');
                     upgradeLinkContainer.classList.remove('hidden');
                     manageSubscriptionLinkContainer.classList.add('hidden');
                 }
             } catch (error) {
-                console.error("Error loading user premium status:", error);
+                console.error("Error loading user membership status:", error);
                 membershipStatusSpan.textContent = 'Error loading status';
             }
 

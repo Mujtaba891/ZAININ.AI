@@ -1,184 +1,240 @@
 // js/pricing.js
 import { auth, db } from "./firebase-config.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-import { doc, getDoc, updateDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
 document.addEventListener('DOMContentLoaded', () => {
+    const pricingMessage = document.getElementById('pricing-message');
     const freePlanCard = document.getElementById('free-plan-card');
     const premiumPlanCard = document.getElementById('premium-plan-card');
-    const subscribePremiumBtn = document.getElementById('subscribe-premium-btn');
-    const pricingMessageElement = document.getElementById('pricing-message');
+    const freeTierMessageLimitDisplay = document.getElementById('free-tier-message-limit-display');
 
     let currentUser = null;
-    let razorpayKeyId = null; // Global Razorpay Key ID from admin settings
+    let adminSettings = {
+        freemiumEnabled: false,
+        freeTierMessageLimit: 10,
+        razorpayKeyId: null
+    };
+    let userProfile = {
+        isPremium: false,
+        planType: 'free'
+    };
 
+    // --- Authentication State & Data Load ---
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             currentUser = user;
             console.log("Pricing page: User logged in", user.uid);
-            await loadAdminSettings(); // Load Razorpay Key ID
-            await updateUserPlanUI(); // Update UI based on user's current plan
+            await loadPricingPageData();
         } else {
             console.log("No user on Pricing page, redirecting to auth.");
             window.location.href = '/auth.html';
         }
     });
 
-    /**
-     * Loads Razorpay Key ID from admin settings.
-     */
-    async function loadAdminSettings() {
+    // --- Load Data from Firestore ---
+    async function loadPricingPageData() {
+        if (!currentUser) return;
+
+        showPricingMessage('Loading pricing information...', 'message-text');
+        
+        // Load global admin settings
         try {
             const adminSettingsRef = doc(db, 'admin_settings', 'global_settings');
-            const docSnap = await getDoc(adminSettingsRef);
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                razorpayKeyId = data.razorpayKeyId || null;
-                console.log("Razorpay Key ID loaded:", razorpayKeyId ? '***' : 'N/A');
-                if (!razorpayKeyId) {
-                    showMessage('Razorpay Key ID not configured by admin. Payments are disabled.', 'error-message');
-                    subscribePremiumBtn.disabled = true;
-                }
+            const adminSnap = await getDoc(adminSettingsRef);
+            if (adminSnap.exists()) {
+                const data = adminSnap.data();
+                adminSettings.freemiumEnabled = data.freemiumEnabled || false;
+                adminSettings.freeTierMessageLimit = data.freeTierMessageLimit || 10;
+                adminSettings.razorpayKeyId = data.razorpayKeyId || null;
+                console.log("Admin settings loaded:", adminSettings);
             } else {
-                showMessage('Admin settings not found. Payments are disabled.', 'error-message');
-                subscribePremiumBtn.disabled = true;
+                console.warn("No admin settings found. Freemium features might be limited.");
             }
         } catch (error) {
             console.error("Error loading admin settings:", error);
-            showMessage('Error loading payment settings.', 'error-message');
-            subscribePremiumBtn.disabled = true;
+            showPricingMessage('Error loading global settings. Please try again later.', 'error-message');
+            // Disable buttons if critical settings fail to load
+            updatePlanCardUI();
+            return;
         }
-    }
 
-    /**
-     * Updates the UI to reflect the user's current plan (Free or Premium).
-     */
-    async function updateUserPlanUI() {
-        if (!currentUser) return;
-
+        // Load user profile
         try {
-            const profileDocRef = doc(db, 'users', currentUser.uid, 'profile', 'data');
-            const profileSnap = await getDoc(profileDocRef);
-            const isPremium = profileSnap.exists() && profileSnap.data().isPremium;
-
-            if (isPremium) {
-                freePlanCard.classList.remove('active');
-                premiumPlanCard.classList.add('active');
-                subscribePremiumBtn.textContent = 'Current Plan';
-                subscribePremiumBtn.disabled = true;
-                subscribePremiumBtn.classList.remove('subscribe-btn');
-                subscribePremiumBtn.classList.add('current-plan-btn');
+            const userProfileRef = doc(db, 'users', currentUser.uid, 'profile', 'data');
+            const profileSnap = await getDoc(userProfileRef);
+            if (profileSnap.exists()) {
+                const data = profileSnap.data();
+                userProfile.isPremium = data.isPremium || false;
+                userProfile.planType = data.planType || 'free';
+                console.log("User profile loaded:", userProfile);
             } else {
-                freePlanCard.classList.add('active');
-                premiumPlanCard.classList.remove('active');
-                subscribePremiumBtn.textContent = 'Upgrade Now';
-                subscribePremiumBtn.disabled = !razorpayKeyId; // Only enable if Razorpay key is available
-                subscribePremiumBtn.classList.add('subscribe-btn');
-                subscribePremiumBtn.classList.remove('current-plan-btn');
+                // If no profile, create a default one (free user)
+                console.log("No user profile found, creating default.");
+                await setDoc(userProfileRef, { isPremium: false, planType: 'free', createdAt: serverTimestamp() }, { merge: true });
+                userProfile.isPremium = false;
+                userProfile.planType = 'free';
             }
         } catch (error) {
-            console.error("Error updating user plan UI:", error);
-            showMessage('Could not load your current plan status.', 'error-message');
+            console.error("Error loading user profile:", error);
+            showPricingMessage('Error loading your profile. Please try again later.', 'error-message');
+            // Disable buttons if critical settings fail to load
+            updatePlanCardUI();
+            return;
+        }
+        
+        updatePlanCardUI();
+        showPricingMessage('', 'message-text'); // Clear message if all loaded successfully
+    }
+
+    // --- UI Update Logic ---
+    function updatePlanCardUI() {
+        // Update free tier message limit display
+        freeTierMessageLimitDisplay.textContent = adminSettings.freeTierMessageLimit;
+
+        // Reset all buttons to default hidden state
+        freePlanCard.querySelector('.plan-btn.current-plan-btn').classList.add('hidden');
+        freePlanCard.querySelector('.plan-btn.disabled').classList.add('hidden');
+        premiumPlanCard.querySelector('.plan-btn.upgrade-btn').classList.add('hidden');
+        premiumPlanCard.querySelector('.plan-btn.current-plan-btn').classList.add('hidden');
+        premiumPlanCard.querySelector('.plan-btn.disabled').classList.add('hidden');
+
+        // Logic for Free Plan Card
+        if (userProfile.planType === 'free') {
+            freePlanCard.querySelector('.plan-btn.current-plan-btn').classList.remove('hidden');
+        } else {
+            // User is premium, so they cannot select the free plan
+            freePlanCard.querySelector('.plan-btn.disabled').textContent = "Not Current Plan";
+            freePlanCard.querySelector('.plan-btn.disabled').classList.remove('hidden');
+        }
+
+        // Logic for Premium Plan Card
+        if (!adminSettings.freemiumEnabled) {
+            premiumPlanCard.querySelector('.plan-btn.disabled').textContent = "Freemium Disabled by Admin";
+            premiumPlanCard.querySelector('.plan-btn.disabled').classList.remove('hidden');
+        } else if (!adminSettings.razorpayKeyId) {
+            premiumPlanCard.querySelector('.plan-btn.disabled').textContent = "Razorpay Key Missing (Admin)";
+            premiumPlanCard.querySelector('.plan-btn.disabled').classList.remove('hidden');
+        } else if (userProfile.planType === 'premium') {
+            premiumPlanCard.querySelector('.plan-btn.current-plan-btn').classList.remove('hidden');
+        } else {
+            // User is free, freemium is enabled, Razorpay key is present
+            const upgradeBtn = premiumPlanCard.querySelector('.plan-btn.upgrade-btn');
+            upgradeBtn.classList.remove('hidden');
+            upgradeBtn.disabled = false; // Enable for click
         }
     }
 
-    /**
-     * Initiates the Razorpay payment process.
-     */
-    async function initiateRazorpayPayment() {
+    // --- Razorpay Payment Integration ---
+    async function initiateRazorpayPayment(planId, amountInPaisa) {
         if (!currentUser) {
-            showMessage('You must be logged in to subscribe.', 'error-message');
+            showPricingMessage('Please log in to upgrade your plan.', 'error-message');
             return;
         }
-        if (!razorpayKeyId) {
-            showMessage('Payment system not configured by admin.', 'error-message');
+        if (!adminSettings.freemiumEnabled) {
+            showPricingMessage('Freemium mode is currently disabled by the administrator.', 'warning-message');
             return;
         }
-
-        // Disable button during payment initiation
-        subscribePremiumBtn.disabled = true;
-        showMessage('Initiating payment...', '');
-
-        const planAmount = 500; // Example: 500 paise = 5.00 INR
-        const currency = 'INR';
-
-        // In a real application, you would make a POST request to your backend
-        // to create a Razorpay Order ID. The backend would handle the amount, currency,
-        // and generate the order.id securely.
-        // For this client-side demo, we'll simulate the order creation response.
-        const orderId = `order_${Math.random().toString(36).substring(2, 15)}`; // Mock order ID
+        if (!adminSettings.razorpayKeyId) {
+            showPricingMessage('Razorpay Key ID is missing from admin settings. Cannot process payment.', 'error-message');
+            return;
+        }
 
         const options = {
-            key: razorpayKeyId, // Your Key ID from the Admin Panel
-            amount: planAmount, // Amount is in paise (smallest currency unit)
-            currency: currency,
-            name: "ZAININ AI Premium Subscription",
-            description: "Unlock unlimited features!",
-            order_id: orderId, // This would come from your backend order creation
+            key: adminSettings.razorpayKeyId, // Public Key ID!
+            amount: amountInPaisa, // Amount in paisa
+            currency: "INR",
+            name: "ZAININ AI Premium",
+            description: `Upgrade to ${planId.toUpperCase()} Plan`,
+            image: "/assets/logo.jpg", // Your logo URL
             handler: async function (response) {
-                // This function is called on successful payment
-                console.log("Payment successful:", response);
-                // In a real app, you'd send `response.razorpay_payment_id`, `response.razorpay_order_id`,
-                // `response.razorpay_signature` to your backend for server-side verification.
-
+                console.log("Razorpay payment successful:", response);
+                showPricingMessage('Payment successful! Updating your plan...', 'success-message');
                 try {
-                    // Mock: Directly update user's premium status after client-side payment success
-                    const profileDocRef = doc(db, 'users', currentUser.uid, 'profile', 'data');
-                    await updateDoc(profileDocRef, {
-                        isPremium: true,
-                        subscriptionId: `sub_${response.razorpay_payment_id}`, // Mock subscription ID
-                        premiumActivatedAt: serverTimestamp(),
-                        lastPaymentId: response.razorpay_payment_id
-                    }, { merge: true });
-
-                    showMessage('Payment successful! You are now a Premium user!', 'success-message');
-                    await updateUserPlanUI(); // Update UI
-                    setTimeout(() => window.location.href = '/profile.html', 2000); // Redirect to profile
+                    await updateUserPlanInFirestore(currentUser.uid, planId, response.razorpay_payment_id);
+                    showPricingMessage('Your plan has been upgraded to Premium! Redirecting...', 'success-message');
+                    setTimeout(() => {
+                        window.location.href = '/profile.html'; // Or '/index.html'
+                    }, 2000);
                 } catch (dbError) {
-                    console.error("Error updating user premium status in Firestore:", dbError);
-                    showMessage('Payment successful, but failed to update your status. Please contact support.', 'error-message');
+                    console.error("Error updating user plan in Firestore after successful payment:", dbError);
+                    showPricingMessage(`Payment successful, but failed to update your plan: ${dbError.message}. Please contact support with payment ID: ${response.razorpay_payment_id}`, 'error-message');
                 }
             },
             prefill: {
                 name: currentUser.displayName || '',
                 email: currentUser.email || '',
-                contact: '' // Optional: User's phone number
+                contact: '' // Optional, user can enter this in Razorpay dialog
             },
             notes: {
                 userId: currentUser.uid,
-                plan: "premium"
+                plan: planId,
+                email: currentUser.email
             },
             theme: {
-                color: "#6050dc" // Customize Razorpay checkout theme
+                color: "#4A90E2" // A accent color matching your theme
             }
         };
 
-        const rzp1 = new Razorpay(options);
-        rzp1.on('payment.failed', function (response) {
-            console.error("Payment failed:", response);
-            showMessage(`Payment failed: ${response.error.description}`, 'error-message');
-            subscribePremiumBtn.disabled = false; // Re-enable button
+        const rzp = new Razorpay(options);
+        rzp.on('payment.failed', function (response) {
+            console.error("Razorpay payment failed:", response);
+            showPricingMessage(`Payment failed: ${response.error.description}. Please try again or contact support. Code: ${response.error.code}`, 'error-message');
         });
 
-        rzp1.open();
-        subscribePremiumBtn.disabled = false; // Re-enable button immediately after opening for re-attempts if popup closed
+        // Ensure buttons are disabled during payment process
+        disableUpgradeButtons(true);
+        rzp.open();
+    }
+
+    // --- Update User Plan in Firestore ---
+    async function updateUserPlanInFirestore(uid, planId, paymentId) {
+        const userProfileRef = doc(db, 'users', uid, 'profile', 'data');
+        await updateDoc(userProfileRef, {
+            isPremium: true,
+            planType: planId,
+            razorpayPaymentId: paymentId,
+            subscriptionStartDate: serverTimestamp(),
+            updatedAt: serverTimestamp()
+        });
+        userProfile.isPremium = true;
+        userProfile.planType = planId;
+        console.log(`User ${uid} plan updated to ${planId}.`);
     }
 
     // --- Helper Functions ---
-    function showMessage(text, className) {
-        pricingMessageElement.textContent = text;
-        pricingMessageElement.className = 'message-text';
+    function showPricingMessage(text, className) {
+        pricingMessage.textContent = text;
+        pricingMessage.className = 'message-text'; // Reset classes
         if (className && className !== 'message-text') {
-            pricingMessageElement.classList.add(className);
+            pricingMessage.classList.add(className);
         }
-        scrollToBottom(); // Ensure message is visible
+        if (text) {
+            pricingMessage.classList.remove('hidden');
+        } else {
+            pricingMessage.classList.add('hidden');
+        }
     }
 
-    function scrollToBottom() {
-        // Simple scroll to ensure the message is visible, especially on smaller screens
-        pricingMessageElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    function disableUpgradeButtons(disable) {
+        const upgradeBtn = premiumPlanCard.querySelector('.plan-btn.upgrade-btn');
+        if (upgradeBtn) {
+            upgradeBtn.disabled = disable;
+            if (disable) {
+                upgradeBtn.classList.add('disabled');
+            } else {
+                upgradeBtn.classList.remove('disabled');
+            }
+        }
     }
 
     // --- Event Listeners ---
-    subscribePremiumBtn.addEventListener('click', initiateRazorpayPayment);
+    premiumPlanCard.addEventListener('click', (e) => {
+        const upgradeBtn = e.target.closest('.plan-btn.upgrade-btn');
+        if (upgradeBtn && !upgradeBtn.disabled) {
+            const planId = upgradeBtn.dataset.plan;
+            const amount = parseInt(upgradeBtn.dataset.amount, 10); // Amount in paisa
+            initiateRazorpayPayment(planId, amount);
+        }
+    });
 });

@@ -4,12 +4,12 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/fi
 import { doc, getDoc, setDoc, updateDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
 document.addEventListener('DOMContentLoaded', () => {
-    const adminOpenrouterKeyInput = document.getElementById('admin-openrouter-key');
-    const adminGeminiVisionKeyInput = document.getElementById('admin-gemini-vision-key');
-    const adminSerpapiKeyInput = document.getElementById('admin-serpapi-key');
+    const adminGeminiApiKeyInput = document.getElementById('admin-gemini-api-key');
+    const adminWeatherApiKeyInput = document.getElementById('admin-weatherapi-key'); // New
+    const adminReplicateApiTokenInput = document.getElementById('admin-replicate-api-token'); // New
     const freemiumToggle = document.getElementById('freemium-toggle');
     const freeTierMessageLimitInput = document.getElementById('free-tier-message-limit');
-    const adminRazorpayKeyIdInput = document.getElementById('admin-razorpay-key-id'); // New: Razorpay Key ID
+    const adminRazorpayKeyIdInput = document.getElementById('admin-razorpay-key-id');
     const saveAdminSettingsBtn = document.getElementById('save-admin-settings-btn');
     const adminMessageElement = document.getElementById('admin-message');
 
@@ -21,6 +21,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let currentUser = null;
     let userChart = null; // To store the Chart.js instance
+
+    // --- Configuration for revenue calculation ---
+    const PLAN_PRICES = {
+        'basic': 2.50,
+        'premium': 5.00
+    };
 
     // --- Authentication State & Admin Check ---
     onAuthStateChanged(auth, async (user) => {
@@ -52,18 +58,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (docSnap.exists()) {
                 const data = docSnap.data();
-                adminOpenrouterKeyInput.value = data.openrouterKey || '';
-                adminGeminiVisionKeyInput.value = data.geminiVisionKey || '';
-                adminSerpapiKeyInput.value = data.serpapiKey || '';
+                adminGeminiApiKeyInput.value = data.geminiApiKey || '';
+                adminWeatherApiKeyInput.value = data.weatherApiKey || ''; // New
+                adminReplicateApiTokenInput.value = data.replicateApiToken || ''; // New
                 freemiumToggle.checked = data.freemiumEnabled || false;
                 freeTierMessageLimitInput.value = data.freeTierMessageLimit || 10;
-                adminRazorpayKeyIdInput.value = data.razorpayKeyId || ''; // Load Razorpay Key ID
+                adminRazorpayKeyIdInput.value = data.razorpayKeyId || '';
                 showMessage('', 'message-text');
                 console.log("Admin settings loaded from Firestore.");
             } else {
-                adminOpenrouterKeyInput.value = '';
-                adminGeminiVisionKeyInput.value = '';
-                adminSerpapiKeyInput.value = '';
+                adminGeminiApiKeyInput.value = '';
+                adminWeatherApiKeyInput.value = '';
+                adminReplicateApiTokenInput.value = '';
                 freemiumToggle.checked = false;
                 freeTierMessageLimitInput.value = 10;
                 adminRazorpayKeyIdInput.value = '';
@@ -75,9 +81,9 @@ document.addEventListener('DOMContentLoaded', () => {
             showMessage('Error loading admin settings.', 'error-message');
         } finally {
             // Ensure inputs are enabled after load attempt
-            adminOpenrouterKeyInput.disabled = false;
-            adminGeminiVisionKeyInput.disabled = false;
-            adminSerpapiKeyInput.disabled = false;
+            adminGeminiApiKeyInput.disabled = false;
+            adminWeatherApiKeyInput.disabled = false; // New
+            adminReplicateApiTokenInput.disabled = false; // New
             freemiumToggle.disabled = false;
             freeTierMessageLimitInput.disabled = false;
             adminRazorpayKeyIdInput.disabled = false;
@@ -92,24 +98,26 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const openrouterKey = adminOpenrouterKeyInput.value.trim();
-        const geminiVisionKey = adminGeminiVisionKeyInput.value.trim();
-        const serpapiKey = adminSerpapiKeyInput.value.trim();
+        const geminiApiKey = adminGeminiApiKeyInput.value.trim();
+        const weatherApiKey = adminWeatherApiKeyInput.value.trim(); // New
+        const replicateApiToken = adminReplicateApiTokenInput.value.trim(); // New
         const freemiumEnabled = freemiumToggle.checked;
         const freeTierMessageLimit = parseInt(freeTierMessageLimitInput.value, 10);
-        const razorpayKeyId = adminRazorpayKeyIdInput.value.trim(); // Get Razorpay Key ID
+        const razorpayKeyId = adminRazorpayKeyIdInput.value.trim();
 
         // Basic validation
-        if (!openrouterKey) {
-            showMessage('OpenRouter key is required for AI functionality.', 'warning-message');
+        if (!geminiApiKey) {
+            showMessage('Google Gemini API key is required for AI functionality.', 'warning-message');
             return;
         }
-        // Gemini vision key is required if image recognition is used, but not strictly for all AI
-        // For simplicity, make it required if freemium is on or if we expect multimodal generally
-        // if (!geminiVisionKey) {
-        //     showMessage('Google Gemini Vision key is required for image recognition.', 'warning-message');
-        //     return;
-        // }
+        if (!weatherApiKey) { // Weather key is now essential for weather features
+             showMessage('WeatherAPI.com Key is required for weather updates.', 'warning-message');
+             return;
+        }
+        if (!replicateApiToken) { // Replicate token is now essential for image generation
+             showMessage('Replicate API Token is required for image generation.', 'warning-message');
+             return;
+        }
         if (isNaN(freeTierMessageLimit) || freeTierMessageLimit < 1) {
             showMessage('Free tier message limit must be a number greater than 0.', 'warning-message');
             return;
@@ -126,12 +134,12 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const adminSettingsRef = doc(db, 'admin_settings', 'global_settings');
             await setDoc(adminSettingsRef, {
-                openrouterKey: openrouterKey,
-                geminiVisionKey: geminiVisionKey,
-                serpapiKey: serpapiKey,
+                geminiApiKey: geminiApiKey,
+                weatherApiKey: weatherApiKey, // New
+                replicateApiToken: replicateApiToken, // New
                 freemiumEnabled: freemiumEnabled,
                 freeTierMessageLimit: freeTierMessageLimit,
-                razorpayKeyId: razorpayKeyId, // Save Razorpay Key ID
+                razorpayKeyId: razorpayKeyId,
                 updatedAt: new Date()
             }, { merge: true });
 
@@ -156,24 +164,42 @@ document.addEventListener('DOMContentLoaded', () => {
             const querySnapshot = await getDocs(usersCollectionRef);
 
             let totalUsers = 0;
+            let freeUsers = 0;
+            let basicUsers = 0;
             let premiumUsers = 0;
-            const premiumPlanCost = 5.00; // $5.00 per month (matches pricing.html)
+            let totalMonthlyRevenue = 0;
 
-            // Iterate through each user's root document to get their profile/data subcollection
             for (const userDoc of querySnapshot.docs) {
                 totalUsers++;
                 const profileRef = doc(db, 'users', userDoc.id, 'profile', 'data');
                 const profileSnap = await getDoc(profileRef);
-                if (profileSnap.exists() && profileSnap.data().isPremium) {
-                    premiumUsers++;
+                
+                let planType = 'free';
+                if (profileSnap.exists()) {
+                    planType = profileSnap.data().planType || 'free';
+                }
+
+                switch (planType) {
+                    case 'basic':
+                        basicUsers++;
+                        totalMonthlyRevenue += (PLAN_PRICES.basic || 0);
+                        break;
+                    case 'premium':
+                        premiumUsers++;
+                        totalMonthlyRevenue += (PLAN_PRICES.premium || 0);
+                        break;
+                    case 'free':
+                    default:
+                        freeUsers++;
+                        break;
                 }
             }
 
             totalUsersCount.textContent = totalUsers;
-            premiumUsersCount.textContent = premiumUsers;
-            monthlyRevenue.textContent = `$${(premiumUsers * premiumPlanCost).toFixed(2)}`;
+            premiumUsersCount.textContent = (basicUsers + premiumUsers); // Display total paid users
+            monthlyRevenue.textContent = `$${totalMonthlyRevenue.toFixed(2)}`;
 
-            renderUserDistributionChart(totalUsers - premiumUsers, premiumUsers);
+            renderUserDistributionChart(freeUsers, basicUsers, premiumUsers);
 
         } catch (error) {
             console.error("Error loading user statistics:", error);
@@ -183,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function renderUserDistributionChart(freeUsers, premiumUsers) {
+    function renderUserDistributionChart(freeUsers, basicUsers, premiumUsers) {
         const ctx = userDistributionChartCanvas.getContext('2d');
 
         if (userChart) {
@@ -193,33 +219,35 @@ document.addEventListener('DOMContentLoaded', () => {
         userChart = new Chart(ctx, {
             type: 'bar', // Can be 'pie', 'doughnut', 'line', 'bar'
             data: {
-                labels: ['Free Users', 'Premium Users'],
+                labels: ['Free Users', 'Basic Users', 'Premium Users'], // Updated labels
                 datasets: [{
                     label: 'Number of Users',
-                    data: [freeUsers, premiumUsers],
+                    data: [freeUsers, basicUsers, premiumUsers], // Updated data
                     backgroundColor: [
-                        'rgba(102, 102, 153, 0.7)', // Muted purple for free (dark mode friendly)
-                        'rgba(74, 144, 226, 0.7)'  // Accent blue for premium
+                        'rgba(102, 102, 153, 0.7)', // Muted purple for free
+                        'rgba(74, 144, 226, 0.7)',  // Accent blue for basic
+                        'rgba(160, 95, 255, 0.7)' // Accent purple for premium
                     ],
                     borderColor: [
                         'rgba(102, 102, 153, 1)',
-                        'rgba(74, 144, 226, 1)'
+                        'rgba(74, 144, 226, 1)',
+                        'rgba(160, 95, 255, 1)'
                     ],
                     borderWidth: 1
                 }]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false, // Allow canvas to take available width
+                maintainAspectRatio: false,
                 scales: {
                     y: {
                         beginAtZero: true,
                         ticks: {
-                            precision: 0, // Ensure integer ticks
+                            precision: 0,
                             color: getComputedStyle(document.body).getPropertyValue('--muted-text-color')
                         },
                         grid: {
-                             color: getComputedStyle(document.body).getPropertyValue('--border-color') // Match grid lines to theme
+                             color: getComputedStyle(document.body).getPropertyValue('--border-color')
                         }
                     },
                     x: {
@@ -234,13 +262,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 plugins: {
                     legend: {
                         labels: {
-                            color: getComputedStyle(document.body).getPropertyValue('--text-color') // Legend text color
+                            color: getComputedStyle(document.body).getPropertyValue('--text-color')
                         }
                     },
                     title: {
                         display: true,
                         text: 'User Plan Distribution',
-                        color: getComputedStyle(document.body).getPropertyValue('--text-color') // Title text color
+                        color: getComputedStyle(document.body).getPropertyValue('--text-color')
                     }
                 }
             }

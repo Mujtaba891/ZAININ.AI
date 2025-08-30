@@ -23,6 +23,7 @@ renderer.code = function(code, language) {
 marked.setOptions({ breaks: true, renderer: renderer }); // Apply the custom renderer and breaks
 
 // --- Global Variables and DOM Elements ---
+const appLoader = document.getElementById('app-loader'); // New
 const mainApp = document.getElementById('main-app');
 const sidebar = document.getElementById('sidebar');
 const sidebarToggleBtn = document.getElementById('sidebar-toggle-btn');
@@ -37,6 +38,7 @@ const logoutBtn = document.getElementById('logout-btn');
 const webSearchToggle = document.getElementById('web-search-toggle');
 const chatTitleElement = document.getElementById('chat-title');
 const adminPanelLinkContainer = document.getElementById('admin-panel-link-container');
+const upgradeToPremiumSidebarLink = document.getElementById('upgrade-to-premium-sidebar-link'); // Sidebar link
 
 // Image Upload Elements
 const imageUploadBtn = document.getElementById('image-upload-btn');
@@ -45,28 +47,38 @@ const imagePreviewArea = document.getElementById('image-preview-area');
 const uploadedImagePreview = document.getElementById('uploaded-image-preview');
 const clearImageBtn = document.getElementById('clear-image-btn');
 
+// Voice Chat Elements
+const voiceInputBtn = document.getElementById('voice-input-btn');
+const ttsAudio = document.getElementById('tts-audio');
+
 // Freemium Elements
 const freemiumMessageDisplay = document.getElementById('freemium-message-display');
-const upgradeToPremiumSidebarLink = document.getElementById('upgrade-to-premium-sidebar-link'); // New: Sidebar link
 
 
 let currentUser = null;
 let currentChatId = null;
 let appSettings = { // Global admin settings & user's web search preference
-    openrouterKey: null,
-    geminiVisionKey: null,
-    serpapiKey: null,
-    webSearchEnabled: false, // User's preference
+    geminiApiKey: null, // Unified Gemini API Key
+    weatherApiKey: null, // New WeatherAPI Key
+    replicateApiToken: null, // New Replicate API Token
+    webSearchEnabled: false, // User's preference (for DuckDuckGo)
     freemiumEnabled: false,
     freeTierMessageLimit: 10,
-    razorpayKeyId: null // New: Razorpay Key ID
+    razorpayKeyId: null
 };
 let userProfile = {
     isAdmin: false,
-    isPremium: false
+    isPremium: false, // True for Basic or Premium plans
+    planType: 'free' // 'free', 'basic', 'premium'
 };
 let uploadedImageBase64 = null; // Stores Base64 string of the uploaded image
 let messageCountForCurrentChat = 0; // Tracks user messages in the current chat for freemium
+
+// Speech Recognition Variables
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognition = null;
+let isListening = false;
+let synthesisVoice = null; // For TTS
 
 // --- Authentication State & Initial Load ---
 onAuthStateChanged(auth, async (user) => {
@@ -87,8 +99,22 @@ onAuthStateChanged(auth, async (user) => {
             adminPanelLinkContainer.classList.add('hidden');
         }
 
-        document.getElementById('auth-container')?.classList.add('hidden');
+        // Hide app loader and show main app
+        appLoader.classList.add('hidden');
         mainApp.classList.remove('hidden');
+
+
+        // Initialize TTS voice
+        window.speechSynthesis.onvoiceschanged = () => {
+            const voices = window.speechSynthesis.getVoices();
+            // Try to find a suitable English voice, prioritize Google/Microsoft
+            synthesisVoice = voices.find(voice => 
+                voice.lang.startsWith('en') && 
+                (voice.name.includes('Google') || voice.name.includes('Microsoft'))
+            ) || voices.find(voice => voice.lang.startsWith('en')) || null;
+            if (!synthesisVoice) console.warn("No English voice found for TTS.");
+        };
+
 
     } else {
         currentUser = null;
@@ -109,12 +135,12 @@ async function loadAdminSettings() {
 
         if (docSnap.exists()) {
             const data = docSnap.data();
-            appSettings.openrouterKey = data.openrouterKey || null;
-            appSettings.geminiVisionKey = data.geminiVisionKey || null;
-            appSettings.serpapiKey = data.serpapiKey || null;
+            appSettings.geminiApiKey = data.geminiApiKey || null;
+            appSettings.weatherApiKey = data.weatherApiKey || null;
+            appSettings.replicateApiToken = data.replicateApiToken || null;
             appSettings.freemiumEnabled = data.freemiumEnabled || false;
             appSettings.freeTierMessageLimit = data.freeTierMessageLimit || 10;
-            appSettings.razorpayKeyId = data.razorpayKeyId || null; // Load Razorpay Key ID
+            appSettings.razorpayKeyId = data.razorpayKeyId || null;
             console.log("Loaded global admin settings:", appSettings);
         } else {
             console.warn("No admin settings document found, using defaults.");
@@ -125,7 +151,7 @@ async function loadAdminSettings() {
 }
 
 /**
- * Loads user-specific profile data (isAdmin, isPremium) and preferences (webSearchEnabled) from Firestore.
+ * Loads user-specific profile data (isAdmin, isPremium, planType) and preferences (webSearchEnabled) from Firestore.
  */
 async function loadUserProfile(uid) {
     try {
@@ -139,13 +165,15 @@ async function loadUserProfile(uid) {
             const data = profileSnap.data();
             userProfile.isAdmin = data.isAdmin || false;
             userProfile.isPremium = data.isPremium || false;
+            userProfile.planType = data.planType || 'free';
             console.log("Loaded user profile:", userProfile);
         } else {
             console.log("No user profile found, assuming default non-admin/non-premium.");
             userProfile.isAdmin = false;
             userProfile.isPremium = false;
+            userProfile.planType = 'free';
             // Create a default profile document if none exists
-            await setDoc(profileDocRef, { isAdmin: false, isPremium: false, createdAt: serverTimestamp() }, { merge: true });
+            await setDoc(profileDocRef, { isAdmin: false, isPremium: false, planType: 'free', createdAt: serverTimestamp() }, { merge: true });
         }
 
         if (userSettingsSnap.exists()) {
@@ -160,15 +188,17 @@ async function loadUserProfile(uid) {
         webSearchToggle.checked = appSettings.webSearchEnabled; // Update UI
 
         // Update sidebar link visibility based on premium status
-        if (userProfile.isPremium) {
-            upgradeToPremiumSidebarLink?.classList.add('hidden');
-        } else {
-            upgradeToPremiumSidebarLink?.classList.remove('hidden');
+        if (upgradeToPremiumSidebarLink) {
+            if (userProfile.isPremium || !appSettings.freemiumEnabled) {
+                upgradeToPremiumSidebarLink.classList.add('hidden');
+            } else {
+                upgradeToPremiumSidebarLink.classList.remove('hidden');
+            }
         }
 
     } catch (error) {
         console.error("Error loading user profile or preferences:", error);
-        userProfile = { isAdmin: false, isPremium: false };
+        userProfile = { isAdmin: false, isPremium: false, planType: 'free' };
         appSettings.webSearchEnabled = false;
         webSearchToggle.checked = false;
     }
@@ -232,11 +262,14 @@ async function loadChat(uid, chatId) {
     console.log("Loading chat:", chatId);
     const chatDocRef = doc(db, 'users', uid, 'chats', chatId);
 
-    messageInput.disabled = true;
-    sendBtn.disabled = true;
+    disableAllInput(true); // Disable all inputs while loading
     chatMessagesDiv.innerHTML = ''; // Clear existing messages
     chatMessagesDiv.classList.add('loading');
     clearImagePreview(); // Clear any pending image upload
+    
+    // Stop any ongoing voice interactions
+    stopSpeechRecognition();
+    stopSpeechSynthesis();
 
     try {
         const docSnap = await getDoc(chatDocRef);
@@ -283,8 +316,7 @@ async function loadChat(uid, chatId) {
         chatTitleElement.textContent = 'Error Loading Chat';
         currentChatId = previousChatId; // Revert to previous ID on error
     } finally {
-        messageInput.disabled = false;
-        sendBtn.disabled = false;
+        disableAllInput(false); // Re-enable inputs
         chatMessagesDiv.classList.remove('loading');
         messageInput.focus();
     }
@@ -318,12 +350,14 @@ async function startNewChat(uid) {
 
     chatMessagesDiv.innerHTML = '';
     chatTitleElement.textContent = 'Starting New Chat...';
-    messageInput.disabled = true;
-    sendBtn.disabled = true;
-    imageUploadBtn.disabled = true; // Disable image upload initially for new chat loading
+    disableAllInput(true); // Disable all inputs while loading
     chatMessagesDiv.classList.add('loading');
     clearImagePreview(); // Clear any pending image upload
     messageCountForCurrentChat = 0; // Reset message count for new chat
+    
+    // Stop any ongoing voice interactions
+    stopSpeechRecognition();
+    stopSpeechSynthesis();
 
     try {
         await setDoc(newChatDocRef, {
@@ -347,9 +381,7 @@ async function startNewChat(uid) {
         currentChatId = null;
         chatTitleElement.textContent = 'Error Starting Chat';
     } finally {
-        messageInput.disabled = false;
-        sendBtn.disabled = false;
-        imageUploadBtn.disabled = false; // Re-enable image upload
+        disableAllInput(false); // Re-enable inputs
         chatMessagesDiv.classList.remove('loading');
         messageInput.focus();
     }
@@ -560,11 +592,11 @@ async function deleteChat(uid, chatId, listItem) {
  * Automatically saves to Firestore if save=true and user/chat are available.
  * @param {'user'|'bot'} sender - The message sender.
  * @param {string} text - The message text (can contain markdown).
- * @param {string|null} imageBase64 - Base64 image data to display, or null.
+ * @param {string|null} imageSource - Image data (Base64) or URL (for generated image) to display, or null.
  * @param {boolean} [save=true] - Whether to save the message to Firestore.
  * @param {number} [messageIndex] - The index of the message in the messages array *when displayed*.
  */
-function displayMessage(sender, text, imageBase64 = null, save = true, messageIndex = undefined) {
+function displayMessage(sender, text, imageSource = null, save = true, messageIndex = undefined) {
     const messageElement = document.createElement('div');
     messageElement.classList.add('chat-message', sender);
     if (messageIndex !== undefined) {
@@ -584,10 +616,10 @@ function displayMessage(sender, text, imageBase64 = null, save = true, messageIn
     const contentElement = document.createElement('div');
     contentElement.classList.add('message-content');
 
-    // Add image if present
-    if (imageBase64) {
+    // Add image if present (either Base64 or a direct URL from image generation)
+    if (imageSource && (imageSource.startsWith('data:image/') || imageSource.startsWith('http'))) {
         const img = document.createElement('img');
-        img.src = imageBase64;
+        img.src = imageSource;
         img.alt = sender === 'user' ? 'User uploaded image' : 'AI generated image';
         img.classList.add('chat-image-content');
         contentElement.appendChild(img);
@@ -595,10 +627,14 @@ function displayMessage(sender, text, imageBase64 = null, save = true, messageIn
 
     // Add text content (markdown)
     try {
-        contentElement.innerHTML += marked.parse(text); // Append, not overwrite if image is there
+        // Only add text if it's not empty, or if an image is ALSO present
+        // This prevents empty text messages if only an image was generated/uploaded
+        if (text || !imageSource) { // If there's text, or if there's no imageSource (meaning it's purely a text message)
+            contentElement.innerHTML += marked.parse(text); // Append, not overwrite if image is there
+        }
     } catch (e) {
         console.error("Error parsing markdown:", e);
-        contentElement.innerHTML += `<p>${escapeHTML(text)}</p>`; // Fallback to plain text
+        if (text) contentElement.innerHTML += `<p>${escapeHTML(text)}</p>`; // Fallback to plain text
     }
 
 
@@ -635,7 +671,9 @@ function displayMessage(sender, text, imageBase64 = null, save = true, messageIn
     scrollToBottom();
 
     if (save && currentUser && currentChatId) {
-        saveMessage(currentUser.uid, currentChatId, { sender, text, imageBase64 });
+        // Only save Base64 data to Firestore, not external image URLs
+        const firestoreImageContent = (imageSource && imageSource.startsWith('data:image/')) ? imageSource : null;
+        saveMessage(currentUser.uid, currentChatId, { sender, text, imageBase64: firestoreImageContent });
     } else if (save && currentUser && !currentChatId) {
         console.warn("Message not saved: currentChatId is not set.");
     }
@@ -687,39 +725,186 @@ function escapeHTML(str) {
     return div.innerHTML;
 }
 
+/**
+ * Disables or enables all interactive input elements in the chat area.
+ * @param {boolean} disable - True to disable, false to enable.
+ */
+function disableAllInput(disable) {
+    messageInput.disabled = disable;
+    sendBtn.disabled = disable;
+    imageUploadBtn.disabled = disable;
+    voiceInputBtn.disabled = disable;
+    webSearchToggle.disabled = disable; // Web search toggle is also an input
+
+    // Handle voice button specific state
+    if (disable) {
+        stopSpeechRecognition(); // Stop listening if inputs are disabled
+        voiceInputBtn.classList.remove('listening');
+    }
+     // Re-apply freemium status after enabling, as it might override some states
+    if (!disable) {
+        checkFreemiumStatus();
+    }
+}
+
+
+// --- Voice Chat Logic ---
+
+function startSpeechRecognition() {
+    if (!SpeechRecognition) {
+        alert("Speech Recognition is not supported by your browser.");
+        return;
+    }
+    if (isListening) {
+        recognition.stop();
+        return;
+    }
+
+    recognition = new SpeechRecognition();
+    recognition.interimResults = false; // Get final results
+    recognition.lang = 'en-US'; // Set language
+
+    recognition.onstart = () => {
+        isListening = true;
+        voiceInputBtn.classList.add('listening');
+        messageInput.placeholder = 'Listening...';
+        console.log("Speech recognition started.");
+        disableAllInput(true); // Disable all inputs while listening
+        voiceInputBtn.disabled = false; // Re-enable voice button to allow stopping
+    };
+
+    recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        messageInput.value = transcript;
+        console.log("Speech recognized:", transcript);
+        isListening = false;
+        voiceInputBtn.classList.remove('listening');
+        messageInput.placeholder = 'Message ZAININ AI...';
+        adjustTextareaHeight(messageInput);
+        // Automatically send the message once speech is recognized
+        if (transcript) {
+            handleSendMessage(transcript, uploadedImageBase64);
+            messageInput.value = ''; // Clear input after sending
+        } else {
+             // If no transcript, re-enable inputs for user to type or try again
+             disableAllInput(false);
+        }
+    };
+
+    recognition.onerror = (event) => {
+        console.error("Speech recognition error:", event.error);
+        isListening = false;
+        voiceInputBtn.classList.remove('listening');
+        messageInput.placeholder = 'Message ZAININ AI...';
+        // Only show alert if it's not a 'no-speech' error (which is common if user stops talking)
+        if (event.error !== 'no-speech') {
+             alert(`Speech recognition error: ${event.error}`);
+        }
+        disableAllInput(false); // Re-enable all inputs on error
+    };
+
+    recognition.onend = () => {
+        console.log("Speech recognition ended.");
+        isListening = false;
+        voiceInputBtn.classList.remove('listening');
+        messageInput.placeholder = 'Message ZAININ AI...';
+        // Inputs will be re-enabled by onresult or onerror,
+        // or specifically by handleSendMessage's finally block if triggered.
+    };
+
+    recognition.start();
+}
+
+function stopSpeechRecognition() {
+    if (recognition && isListening) {
+        recognition.stop();
+        console.log("Speech recognition stopped manually.");
+    }
+}
+
+function speak(text) {
+    if (!SpeechSynthesis || !synthesisVoice) {
+        console.warn("Text-to-Speech not supported or no voice available.");
+        return;
+    }
+    stopSpeechSynthesis(); // Stop any ongoing speech
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.voice = synthesisVoice;
+    utterance.lang = synthesisVoice.lang;
+    utterance.rate = 1.0; // Speed
+    utterance.pitch = 1.0; // Pitch
+
+    utterance.onstart = () => {
+        console.log("TTS started.");
+        ttsAudio.classList.remove('hidden'); // Show some indicator if needed
+    };
+    utterance.onend = () => {
+        console.log("TTS ended.");
+        ttsAudio.classList.add('hidden');
+    };
+    utterance.onerror = (event) => {
+        console.error("TTS error:", event.error);
+        ttsAudio.classList.add('hidden');
+    };
+
+    window.speechSynthesis.speak(utterance);
+}
+
+function stopSpeechSynthesis() {
+    if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+        console.log("TTS stopped manually.");
+        ttsAudio.classList.add('hidden');
+    }
+}
 
 // --- Freemium Logic ---
 function checkFreemiumStatus() {
-    if (!appSettings.freemiumEnabled || userProfile.isPremium) {
+    // Basic and Premium plans are considered 'isPremium'
+    const isPaidPlan = userProfile.planType === 'basic' || userProfile.planType === 'premium';
+
+    // Image Upload is restricted for free plans. Web search for basic and premium.
+    const imageUploadAllowed = (userProfile.planType === 'basic' || userProfile.planType === 'premium');
+    const webSearchAllowed = (userProfile.planType === 'basic' || userProfile.planType === 'premium');
+
+
+    if (!appSettings.freemiumEnabled || isPaidPlan) {
         freemiumMessageDisplay.classList.add('hidden');
         messageInput.disabled = false;
         sendBtn.disabled = false;
-        imageUploadBtn.disabled = false;
-        // Also ensure web search toggle is enabled if user is premium
-        webSearchToggle.disabled = false;
-        return true; // User is premium or freemium is disabled
+        imageUploadBtn.disabled = !imageUploadAllowed; // Enable image upload if Basic/Premium
+        voiceInputBtn.disabled = false;
+        webSearchToggle.disabled = !webSearchAllowed; // Enable web search if Basic/Premium
+        if (!webSearchAllowed) webSearchToggle.checked = false; // Force toggle off if not allowed
+        return true;
     }
 
-    // If freemium is enabled and user is not premium, check message limits
+    // If freemium is enabled and user is 'free' plan, check message limits
     if (messageCountForCurrentChat >= appSettings.freeTierMessageLimit) {
         freemiumMessageDisplay.classList.remove('hidden');
         freemiumMessageDisplay.innerHTML = `
             <i class="fas fa-lock"></i> Free limit reached (${appSettings.freeTierMessageLimit} messages).
-            <a href="/pricing.html" class="freemium-upgrade-link">Upgrade to Premium</a> for unlimited access!
+            <a href="/pricing.html" class="freemium-upgrade-link">Upgrade your plan</a> for more features!
         `;
         messageInput.disabled = true;
         sendBtn.disabled = true;
-        imageUploadBtn.disabled = true;
-        webSearchToggle.disabled = true; // Disable web search for free users after limit
-        clearImagePreview(); // Clear any pending image upload when input is disabled
+        imageUploadBtn.disabled = true; // Disabled for free users always
+        voiceInputBtn.disabled = true;
+        webSearchToggle.disabled = true; // Disabled for free users always
+        webSearchToggle.checked = false; // Ensure it's off
+        clearImagePreview();
+        stopSpeechRecognition();
+        stopSpeechSynthesis();
         return false; // Limit reached
     } else {
         freemiumMessageDisplay.classList.add('hidden');
         messageInput.disabled = false;
         sendBtn.disabled = false;
-        imageUploadBtn.disabled = false;
-        // Web search availability based on user's preference for free users within limit
-        webSearchToggle.disabled = false; // The toggle is enabled, actual search depends on key + toggle state
+        imageUploadBtn.disabled = !imageUploadAllowed; // Disabled for free users
+        voiceInputBtn.disabled = false;
+        webSearchToggle.disabled = !webSearchAllowed; // Disabled for free users
+        if (!webSearchAllowed) webSearchToggle.checked = false; // Ensure it's off
         return true; // Within limit
     }
 }
@@ -727,6 +912,13 @@ function checkFreemiumStatus() {
 
 // --- Image Upload Logic ---
 function handleImageUpload(event) {
+    // Check if image uploads are globally enabled by plan type
+    if (appSettings.freemiumEnabled && !(userProfile.planType === 'basic' || userProfile.planType === 'premium')) {
+        alert("Image uploads are not available on your current plan. Please upgrade your plan for this feature.");
+        clearImagePreview();
+        return;
+    }
+
     const file = event.target.files[0];
     if (file) {
         if (file.size > 5 * 1024 * 1024) { // 5 MB limit for image
@@ -888,7 +1080,7 @@ async function editMessage(messageElement) {
     }
 
     const originalText = originalMessage.text || '';
-    const originalImageBase64 = originalMessage.imageBase64 || null;
+    const originalImageBase64 = originalMessage.imageBase64 || null; // This will be Base64 if uploaded, or null if text-only or generated image URL
 
     contentDiv.style.display = 'none';
     actionsDiv.style.display = 'none';
@@ -905,11 +1097,14 @@ async function editMessage(messageElement) {
     // Image preview in edit mode
     const editImagePreviewArea = document.createElement('div');
     editImagePreviewArea.classList.add('image-preview-area', 'edit-mode');
-    if (!originalImageBase64) {
+    // Show image preview only if original was Base64 (uploaded)
+    if (originalImageBase64 && originalImageBase64.startsWith('data:image/')) {
+        editImagePreviewArea.classList.remove('hidden');
+    } else {
         editImagePreviewArea.classList.add('hidden');
     }
     editImagePreviewArea.innerHTML = `
-        <img src="${originalImageBase64 || '#'}" alt="Image Preview" class="uploaded-image-preview">
+        <img src="${(originalImageBase64 && originalImageBase64.startsWith('data:image/')) ? originalImageBase64 : '#'}" alt="Image Preview" class="uploaded-image-preview">
         <button class="icon-button clear-image-btn" title="Clear Image"><i class="fas fa-times"></i></button>
     `;
     editArea.appendChild(editImagePreviewArea);
@@ -923,11 +1118,20 @@ async function editMessage(messageElement) {
     const editImageUploadBtn = document.createElement('button');
     editImageUploadBtn.classList.add('icon-button', 'upload-button-in-edit');
     editImageUploadBtn.innerHTML = '<i class="fas fa-image"></i> Change Image';
+    
+    // Disable change image button if image uploads are not allowed by plan
+    if (appSettings.freemiumEnabled && !(userProfile.planType === 'basic' || userProfile.planType === 'premium')) {
+         editImageUploadBtn.disabled = true;
+         editImageUploadBtn.title = "Image uploads disabled on Free plan";
+    }
     editArea.appendChild(editImageUploadBtn);
 
-    let currentEditedImageBase64 = originalImageBase64;
+    let currentEditedImageBase64 = (originalImageBase64 && originalImageBase64.startsWith('data:image/')) ? originalImageBase64 : null;
 
-    editImageUploadBtn.addEventListener('click', () => editImageInputFile.click());
+    editImageUploadBtn.addEventListener('click', () => {
+        if (editImageUploadBtn.disabled) return;
+        editImageInputFile.click();
+    });
     editImageInputFile.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -965,7 +1169,7 @@ async function editMessage(messageElement) {
     textarea.style.borderRadius = '8px';
     textarea.style.padding = '10px';
     textarea.style.fontSize = '1em';
-    textarea.style.fontFamily = 'Poppins, sans-serif';
+    textarea.style.fontFamily = 'Poppins', sans-serif;
     textarea.style.outline = 'none';
     textarea.style.lineHeight = '1.6';
 
@@ -1006,7 +1210,7 @@ async function editMessage(messageElement) {
 
     saveBtn.addEventListener('click', async () => {
         const newText = textarea.value.trim();
-        const newImage = currentEditedImageBase64;
+        const newImage = currentEditedImageBase64; // This is always Base64 or null
 
         if (newText === originalText && newImage === originalImageBase64) {
             console.log("Edit cancelled: no change.");
@@ -1020,9 +1224,11 @@ async function editMessage(messageElement) {
         }
 
         saveBtn.disabled = true;
-        cancelBtn.disabled = true;
+            cancelBtn.disabled = true;
+            disableAllInput(true); // Disable all inputs during save/rerun
 
         try {
+            // Save Base64 only to Firestore
             await editMessageInFirestore(currentUser.uid, currentChatId, messageIndexInDom, newText, newImage);
 
             editArea.remove();
@@ -1030,7 +1236,7 @@ async function editMessage(messageElement) {
             contentDiv.innerHTML = '';
             if (newImage) {
                 const img = document.createElement('img');
-                img.src = newImage;
+                img.src = newImage; // Display Base64
                 img.alt = 'User uploaded image';
                 img.classList.add('chat-image-content');
                 contentDiv.appendChild(img);
@@ -1042,14 +1248,16 @@ async function editMessage(messageElement) {
 
             console.log("Message edited and saved.");
 
-            rerunMessage(messageElement);
+            await rerunMessage(messageElement); // Wait for rerun to complete
 
         } catch (error) {
             console.error("Error saving edited message:", error);
             displayMessage('bot', `Failed to save edited message: ${error.message}`, null, false);
+        } finally {
+            disableAllInput(false); // Re-enable inputs
             saveBtn.disabled = false;
             cancelBtn.disabled = false;
-            cancelEditing();
+            cancelEditing(); // Ensure edit UI is removed on error
         }
     });
 
@@ -1059,6 +1267,7 @@ async function editMessage(messageElement) {
         editArea.remove();
         contentDiv.style.display = '';
         actionsDiv.style.display = 'flex';
+        disableAllInput(false); // Ensure inputs are re-enabled if editing is cancelled.
         console.log("Editing cancelled.");
     }
 }
@@ -1176,7 +1385,7 @@ chatHistoryList.addEventListener('click', (e) => {
 // Send Message Button & Enter Key
 async function handleSendMessage(text, image = null) {
     const messageText = text ? text.trim() : '';
-    const messageImage = image || uploadedImageBase64;
+    const messageImage = image || uploadedImageBase64; // This is Base64 from upload or a URL from rerun
 
     if (!messageText && !messageImage) return;
 
@@ -1186,30 +1395,36 @@ async function handleSendMessage(text, image = null) {
         return;
     }
 
-    if (!checkFreemiumStatus()) {
-        return;
+    if (!checkFreemiumStatus()) { // Check freemium limits
+        return; // If limit reached, inputs are disabled, so this should prevent sending.
     }
 
-    messageCountForCurrentChat++;
+    messageCountForCurrentChat++; // Increment count before sending to keep track
 
     const chatDocSnapBeforeUserMsg = await getDoc(doc(db, 'users', currentUser.uid, 'chats', currentChatId));
     const currentMessagesCount = chatDocSnapBeforeUserMsg.exists() ? (chatDocSnapBeforeUserMsg.data().messages || []).length : 0;
 
-    displayMessage('user', messageText, messageImage, true, currentMessagesCount);
+    // Determine what to display and what to save:
+    // Display: Base64 if uploaded, OR a URL if rerun of generated image.
+    // Save: ONLY Base64 to Firestore. Generated image URLs are not saved as imageBase64.
+    const displayImageContent = (typeof messageImage === 'string' && (messageImage.startsWith('data:image/') || messageImage.startsWith('http'))) ? messageImage : null;
+    const firestoreImageContent = (typeof messageImage === 'string' && messageImage.startsWith('data:image/')) ? messageImage : null;
 
-    messageInput.disabled = true;
-    sendBtn.disabled = true;
-    imageUploadBtn.disabled = true;
-    webSearchToggle.disabled = true; // Disable web search toggle while bot is thinking
+
+    displayMessage('user', messageText, displayImageContent, true, currentMessagesCount);
+
+    disableAllInput(true); // Disable all inputs while bot processes
     showTypingIndicator();
-    clearImagePreview();
+    clearImagePreview(); // Clear image preview after sending
+    stopSpeechSynthesis(); // Stop any TTS if user interrupts with new message
 
     try {
         const updatedChatDocSnap = await getDoc(doc(db, 'users', currentUser.uid, 'chats', currentChatId));
         const messagesForContext = (updatedChatDocSnap.exists() ? updatedChatDocSnap.data().messages : [])
             .map(msg => ({ sender: msg.sender, text: msg.text, imageBase64: msg.imageBase64 || null }));
 
-        const botResponse = await generateResponse(messageText, appSettings, messagesForContext, messageImage);
+        // Pass firestoreImageContent (Base64) to generateResponse. apiHandler deals with it.
+        const botResponse = await generateResponse(messageText, appSettings, messagesForContext, firestoreImageContent);
 
 
         removeTypingIndicator();
@@ -1217,24 +1432,28 @@ async function handleSendMessage(text, image = null) {
         const finalChatDocSnap = await getDoc(doc(db, 'users', currentUser.uid, 'chats', currentChatId));
         const messagesCountBeforeBotMsg = finalChatDocSnap.exists() ? (finalChatDocSnap.data().messages || []).length : currentMessagesCount + 1;
 
-        displayMessage('bot', botResponse, null, true, messagesCountBeforeBotMsg);
+        // Check if botResponse is an image URL (from image generation)
+        if (typeof botResponse === 'string' && (botResponse.startsWith('http://') || botResponse.startsWith('https://'))) {
+            displayMessage('bot', `Here is your generated image:`, botResponse, true, messagesCountBeforeBotMsg);
+            speak("Here is your generated image.");
+        } else {
+            displayMessage('bot', botResponse, null, true, messagesCountBeforeBotMsg);
+            speak(botResponse); // Speak the bot's response
+        }
+
 
     } catch (error) {
         console.error("Error getting bot response:", error);
         removeTypingIndicator();
-        messageCountForCurrentChat--;
+        messageCountForCurrentChat--; // Decrement message count if bot failed
         const errorChatDocSnap = await getDoc(doc(db, 'users', currentUser.uid, 'chats', currentChatId));
         const messagesCountBeforeErrorMsg = errorChatDocSnap.exists() ? (errorChatDocSnap.data().messages || []).length : currentMessagesCount + 1;
 
         displayMessage('bot', `Error: ${error.message}`, null, true, messagesCountBeforeErrorMsg);
     } finally {
-        messageInput.disabled = false;
-        sendBtn.disabled = false;
-        imageUploadBtn.disabled = false;
-        // Re-enable web search toggle based on freemium/premium status
-        webSearchToggle.disabled = (appSettings.freemiumEnabled && !userProfile.isPremium && messageCountForCurrentChat >= appSettings.freeTierMessageLimit);
+        disableAllInput(false); // Re-enable all inputs
         messageInput.focus();
-        checkFreemiumStatus();
+        checkFreemiumStatus(); // Re-check freemium status after interaction
     }
 }
 
@@ -1304,6 +1523,15 @@ chatMessagesDiv.addEventListener('click', (e) => {
 // Web Search Toggle - Save setting on change
 webSearchToggle.addEventListener('change', async () => {
     if (!currentUser) { console.warn("User not logged in, cannot save setting."); webSearchToggle.checked = !webSearchToggle.checked; return; }
+    
+    // Only allow changing web search preference for Basic/Premium users
+    if (appSettings.freemiumEnabled && !(userProfile.planType === 'basic' || userProfile.planType === 'premium')) {
+        alert("Web search is not available on your current plan. Please upgrade your plan.");
+        webSearchToggle.checked = false; // Force toggle off
+        webSearchToggle.disabled = true; // Keep it disabled
+        return;
+    }
+
     const isEnabled = webSearchToggle.checked;
     appSettings.webSearchEnabled = isEnabled;
     try {
@@ -1320,15 +1548,25 @@ webSearchToggle.addEventListener('change', async () => {
 
 // Image Upload Button and Input File
 imageUploadBtn.addEventListener('click', () => {
+    // Freemium check is now inside handleImageUpload
     imageInputFile.click();
 });
 imageInputFile.addEventListener('change', handleImageUpload);
 clearImageBtn.addEventListener('click', clearImagePreview);
 
+// Voice Input Button
+voiceInputBtn.addEventListener('click', () => {
+    // Check freemium status before allowing voice input
+    if (!checkFreemiumStatus()) return; // checkFreemiumStatus also handles disabling
+    startSpeechRecognition();
+});
+
 
 // Handle Logout
 logoutBtn.addEventListener('click', async () => {
     try {
+        stopSpeechRecognition();
+        stopSpeechSynthesis();
         await signOut(auth);
         window.location.replace('/auth.html');
     } catch (error) {
@@ -1347,5 +1585,5 @@ setTimeout(() => {
     }
 }, 100);
 
-// Initial freemium status check
+// Initial freemium status check (redundant, but good to have)
 checkFreemiumStatus();
